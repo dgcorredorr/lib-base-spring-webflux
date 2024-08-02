@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Estructura general utilizada por el servicio para entregar una respuesta.
  *
@@ -25,6 +28,7 @@ import java.util.Map;
 @Data
 @Builder
 @Schema(description = "Estructura de respuesta genérica para las solicitudes de la API.")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GenericResponse implements Serializable {
 
     @Serial
@@ -46,6 +50,7 @@ public class GenericResponse implements Serializable {
     private LocalDateTime timestamp;
 
     @Schema(description = "Detalles adicionales sobre el error, si los hay.")
+    @JsonIgnore
     private Map<String, Object> errorDetails;
 
     @Schema(description = "ID de la solicitud asociado con esta respuesta.")
