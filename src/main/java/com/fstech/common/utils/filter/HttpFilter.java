@@ -62,6 +62,7 @@ public class HttpFilter implements WebFilter {
             return chain.filter(exchange)
                     .doFinally(signalType -> {
                         long endTime = System.currentTimeMillis();
+                        ContextFilter.setCurrentExchange(exchange);
                         processResponseBody(exchange, signalType, endTime - startTime, body);
                     });
         });

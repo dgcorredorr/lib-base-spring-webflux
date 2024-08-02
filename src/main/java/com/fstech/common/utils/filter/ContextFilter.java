@@ -19,6 +19,10 @@ public class ContextFilter implements WebFilter {
         return exchangeHolder.get();
     }
 
+    public static void setCurrentExchange(ServerWebExchange exchange) {
+        exchangeHolder.set(exchange);
+    }
+
     @Override
     @NonNull
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
