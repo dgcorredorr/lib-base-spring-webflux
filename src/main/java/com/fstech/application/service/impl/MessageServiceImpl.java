@@ -62,7 +62,6 @@ public class MessageServiceImpl implements MessageService {
                 .filter(message -> message.getMessageId().equals(messageMapping.toString()))
                 .next()
                 .map(Message::getMessageContent)
-                .switchIfEmpty(this.getMessage(MessageMapping.MESSAGE_NOT_FOUND.toString())
-                        .map(Message::getMessageContent));
+                .switchIfEmpty(Mono.just(messageMapping.toString()));
     }
 }

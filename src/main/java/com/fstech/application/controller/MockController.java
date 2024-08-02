@@ -10,6 +10,7 @@ import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.MessageMapping;
 import com.fstech.common.utils.enums.Task;
 
+import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,7 +47,7 @@ public class MockController {
     }
 
     @PostMapping
-    public Mono<GenericResponse> getCoffee(@RequestBody String entity) {
+    public Mono<GenericResponse> getCoffee(@Valid @RequestBody String entity) {
         GenericResponse response = GenericResponse.builder()
                 .origin("api/v1/mock")
                 .build();

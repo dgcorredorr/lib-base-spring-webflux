@@ -69,7 +69,7 @@ public class HttpFilter implements WebFilter {
 
     private void processRequestBody(ServerWebExchange exchange, Object body) {
         ServerHttpRequest request = exchange.getRequest();
-        String requestId = request.getId();
+        String requestId = exchange.getLogPrefix();
 
         traceabilityService.createTraceability(Traceability.builder()
                 .transactionId(requestId)
@@ -91,7 +91,7 @@ public class HttpFilter implements WebFilter {
             Object requestBody) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
-        String transactionId = request.getId();
+        String transactionId = exchange.getLogPrefix();
         TraceabilityStatus traceabilityStatus = exchange.getAttribute("TRACEABILITY_STATUS");
         HttpStatusCode httpStatusCode = response.getStatusCode();
         LogLevel logLevel = (httpStatusCode != null) ? httpStatusCode.is2xxSuccessful() ? LogLevel.INFO

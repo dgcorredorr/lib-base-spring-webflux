@@ -6,6 +6,8 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * Estructura general utilizada por el servicio para entregar una respuesta.
@@ -30,11 +32,22 @@ public class GenericResponse implements Serializable {
 
     @Schema(description = "Indica si la solicitud fue exitosa o no.")
     private boolean success;
+
     @Schema(description = "Origen de la respuesta, puede ser utilizado para identificar el componente o parte de la aplicación que generó la respuesta.")
     private String origin;
+
     @Schema(description = "Mensaje descriptivo asociado con la respuesta. Puede contener información adicional sobre el resultado de la solicitud.")
     private String message;
+
     @Schema(description = "Documentos asociados con la respuesta.")
     private Object documents;
 
+    @Schema(description = "Fecha y hora en que se creó la respuesta.")
+    private LocalDateTime timestamp;
+
+    @Schema(description = "Detalles adicionales sobre el error, si los hay.")
+    private Map<String, Object> errorDetails;
+
+    @Schema(description = "ID de la solicitud asociado con esta respuesta.")
+    private String requestId;
 }

@@ -26,7 +26,7 @@ $ mvn install
 **NOTA: Antes de correr el proyecto, asegúrese de ejecutar con Docker el archivo compose.yaml.**
 
 ```bash
-docker compose -f "compose.yaml" up -d --build
+$ docker compose -f "compose.yaml" up -d --build
 ```
 
 ```bash
@@ -41,7 +41,7 @@ Luego podrá acceder desde el [navegador](http://localhost:8080/swagger-ui.html)
 Si no cuenta con un servidor SonarQube remoto, tiene la posibilidad de ejecutarlo mediante un contendedor Docker con el siguiente comando:
 
 ```bash
-docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
+$ docker run -d --name sonarqube -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true -p 9000:9000 sonarqube:latest
 ```
 
 Desde su línea de comando:
