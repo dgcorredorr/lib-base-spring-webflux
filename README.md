@@ -23,7 +23,11 @@ $ cd ms-base
 $ mvn install
 ```
 
-**NOTA: Antes de correr el proyecto, asegúrese de tener configurada la conexión a la base de datos MongoDB y las variables de entorno necesarias.**
+**NOTA: Antes de correr el proyecto, asegúrese de ejecutar con Docker el archivo compose.yaml.**
+
+```bash
+docker compose -f "compose.yaml" up -d --build
+```
 
 ```bash
 # Correr aplicación en modo desarrollo
