@@ -31,7 +31,7 @@ public class MockController {
     }
 
     @GetMapping
-    public Mono<GenericResponse> getMethodName(@RequestParam String testParam) {
+    public Mono<GenericResponse> getMock(@RequestParam String testParam1, @RequestParam String testParam2) {
         GenericResponse response = GenericResponse.builder()
                 .origin("api/v1/mock")
                 .build();
@@ -40,14 +40,14 @@ public class MockController {
                 .doOnSuccess(message -> {
                     response.setMessage(message);
                     response.setSuccess(true);
-                    response.setDocuments(testParam);
-                    logger.log(message,Task.TEST_TASK,LogLevel.INFO,testParam,null);
+                    response.setDocuments(testParam1 + testParam2);
+                    logger.log(message,Task.TEST_TASK,LogLevel.INFO,testParam1+testParam2,null);
                 })
                 .thenReturn(response);
     }
 
     @PostMapping
-    public Mono<GenericResponse> getCoffee(@Valid @RequestBody String entity) {
+    public Mono<GenericResponse> postMock(@Valid @RequestBody String entity) {
         GenericResponse response = GenericResponse.builder()
                 .origin("api/v1/mock")
                 .build();
