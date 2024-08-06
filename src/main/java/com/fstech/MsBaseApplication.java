@@ -4,19 +4,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.fstech.common.configuration.GeneralConfig;
-import com.fstech.common.utils.ServiceLogger;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.log.ServiceLogger;
 
 @SpringBootApplication
 public class MsBaseApplication {
 
-	private static ServiceLogger<MsBaseApplication> logger;
-
-	public MsBaseApplication(ServiceLogger<MsBaseApplication> logger) {
-		logger.setLoggerClass(MsBaseApplication.class);
-		MsBaseApplication.logger = logger;
-	}
+	private static ServiceLogger<MsBaseApplication> logger = new ServiceLogger<>(MsBaseApplication.class);
 
 	public static void main(String[] args) {
 		long startTime = System.currentTimeMillis();

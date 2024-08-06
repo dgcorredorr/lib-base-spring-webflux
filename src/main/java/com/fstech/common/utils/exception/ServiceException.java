@@ -22,7 +22,7 @@ public class ServiceException extends RuntimeException {
 
     private final Class<?> exceptionClass;
     private final Task task;
-    private final Object documents;
+    private final transient Object documents;
 
     /**
      * Construye una nueva excepción de servicio con el mensaje de error, una causa subyacente,

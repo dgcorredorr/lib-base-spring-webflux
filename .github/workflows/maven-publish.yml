@@ -3,6 +3,7 @@ name: Maven Package
 on:
   release:
     types: [created]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,15 +27,30 @@ jobs:
       run: |
         rm -f src/main/java/com/fstech/MsBaseApplication.java
         rm -f src/test/java/com/fstech/MsBaseApplicationTests.java
+        rm -f src/main/java/com/fstech/application/controller/MockController.java
 
     - name: Modify POM for library publication
       run: |
         sed -i '/<build>/,/<\/build>/d' pom.xml
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DskipTests
+      run: mvn -B package --file pom.xml
+
+    - name: Determine version type
+      id: determine_version
+      run: |
+        if [[ "$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" == *-SNAPSHOT ]]; then
+          echo "REPO_TYPE=snapshots" >> $GITHUB_ENV
+        else
+          echo "REPO_TYPE=releases" >> $GITHUB_ENV
+        fi
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DskipTests
+      run: |
+        if [ "$REPO_TYPE" == "snapshots" ]; then
+          mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository=github-snapshots::default::https://maven.pkg.github.com/fstech-co/base-snapshots
+        else
+          mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository=github-releases::default::https://maven.pkg.github.com/fstech-co/base-releases
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

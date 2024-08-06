@@ -16,6 +16,6 @@ package com.fstech.common.utils.enums;
 public enum LogLevel {
     ALL,
     INFO,
-    WARNING,
+    WARN,
     ERROR
 }

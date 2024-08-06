@@ -5,11 +5,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<java.version>17</java.version>
-		<app.version>1.0.0-SNAPSHOT</app.version>
 		<app.name>Microservicio Base</app.name>
 		<app.description>Microservicio base de la fábrica de software FullSpectrum Tech</app.description>
-		<spring.version>3.3.2</spring.version>
+		<app.version>1.0.0-SNAPSHOT</app.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<parent>
@@ -20,7 +19,7 @@
 	</parent>
 	<groupId>com.fstech</groupId>
 	<artifactId>ms-base</artifactId>
-	<version>${app.version}</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>Microservicio Base</name>
 	<description>Microservicio base de la fábrica de software FullSpectrum Tech</description>
 	<url />
@@ -195,10 +194,16 @@
 	</build>
 
 	<distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/fstech-co/ms-base</url>
-        </repository>
-    </distributionManagement>
+		<repository>
+			<id>github-releases</id>
+			<name>GitHub Packages Releases</name>
+			<url>https://maven.pkg.github.com/fstech-co/base-releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>github-snapshots</id>
+			<name>GitHub Packages Snapshots</name>
+			<url>https://maven.pkg.github.com/fstech-co/base-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 </project>

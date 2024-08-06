@@ -44,14 +44,14 @@ public class GenericResponse implements Serializable {
     private String message;
 
     @Schema(description = "Documentos asociados con la respuesta.")
-    private Object documents;
+    private transient Object documents;
 
     @Schema(description = "Fecha y hora en que se creó la respuesta.")
     private LocalDateTime timestamp;
 
     @Schema(description = "Detalles adicionales sobre el error, si los hay.")
     @JsonIgnore
-    private Map<String, Object> errorDetails;
+    private transient Map<String, Object> errorDetails;
 
     @Schema(description = "ID de la solicitud asociado con esta respuesta.")
     private String requestId;

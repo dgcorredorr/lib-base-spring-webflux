@@ -2,9 +2,9 @@ package com.fstech.provider.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.fstech.common.utils.ServiceLogger;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.Traceability;
 import com.fstech.provider.TraceabilityProvider;
 import com.fstech.provider.mapper.TraceabilityMapper;
@@ -23,13 +23,11 @@ import reactor.core.publisher.Mono;
  */
 @Component
 public class TraceabilityProviderImpl implements TraceabilityProvider {
-    private final ServiceLogger<TraceabilityProviderImpl> logger;
+    private final ServiceLogger<TraceabilityProviderImpl> logger = new ServiceLogger<>(TraceabilityProviderImpl.class);
     private final TraceabilityRepository traceabilityRepository;
     private final TraceabilityMapper traceabilityMapper;
 
-    public TraceabilityProviderImpl(ServiceLogger<TraceabilityProviderImpl> logger, TraceabilityRepository traceabilityRepository, TraceabilityMapper traceabilityMapper) {
-        logger.setLoggerClass(TraceabilityProviderImpl.class);
-        this.logger = logger;
+    public TraceabilityProviderImpl(TraceabilityRepository traceabilityRepository, TraceabilityMapper traceabilityMapper) {
         this.traceabilityRepository = traceabilityRepository;
         this.traceabilityMapper = traceabilityMapper;
     }

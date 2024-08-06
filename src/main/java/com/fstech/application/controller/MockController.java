@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fstech.application.dto.GenericResponse;
 import com.fstech.application.service.MessageService;
-import com.fstech.common.utils.ServiceLogger;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.MessageMapping;
 import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.log.ServiceLogger;
 
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
@@ -20,13 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 @RequestMapping("api/v1/mock")
 public class MockController {
-    private final ServiceLogger<MockController> logger;
+    private final ServiceLogger<MockController> logger = new ServiceLogger<>(MockController.class);
 
     private final MessageService messageService;
 
-    public MockController(MessageService messageService, ServiceLogger<MockController> logger) {
-        logger.setLoggerClass(MockController.class);
-        this.logger = logger;
+    public MockController(MessageService messageService) {
         this.messageService = messageService;
     }
 

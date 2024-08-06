@@ -1,4 +1,4 @@
-package com.fstech.common.utils;
+package com.fstech.common.utils.log;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import com.fstech.common.utils.filter.ContextFilter;
  * aplicación,
  * incluyendo detalles como el nombre de la aplicación, el ID de la transacción,
  * y la tarea
- * específica que se está registrando. Está diseñada para ser utilizada en todo
+ * específica que se está registrando. Está diseñada para ser utilizada a lo largo
  * el sistema
  * para asegurar un formato de log coherente y detallado.
  * </p>
@@ -32,7 +32,7 @@ import com.fstech.common.utils.filter.ContextFilter;
 public class ServiceLogger<T> {
     private Logger logger;
 
-    public void setLoggerClass(Class<T> classToLog) {
+    public ServiceLogger(Class<T> classToLog) {
         this.logger = LoggerFactory.getLogger(classToLog);
     }
 
@@ -47,34 +47,42 @@ public class ServiceLogger<T> {
      *                       disponible.
      * @return Un que representa el resultado de la operación de log.
      */
-    public void log(String message, Task task, LogLevel level, Object object,
-                          Long processingTime) {
+    public void log(String message, Task task, LogLevel level, Object object, Long processingTime) {
         LogLevel currentLevel = LogLevel.valueOf(GeneralConfig.getLogLevel().toUpperCase());
         LogLevel messageLevel = LogLevel.valueOf(level.toString().toUpperCase());
-
+    
         if (shouldLog(currentLevel, messageLevel)) {
             ServerWebExchange exchange = ContextFilter.getCurrentExchange();
             String applicationName = GeneralConfig.getAppId();
             String transactionId = exchange != null ? exchange.getLogPrefix() : "N/A";
-            String logOrigin = task.getOriginString();
-            logMessage(applicationName, task, task.getDescription(), transactionId, message, logOrigin, level, object, processingTime);
+            String logOrigin = task != null ? task.getOriginString() : "N/A";
+            ServiceLog serviceLog = ServiceLog.builder()
+                    .applicationName(applicationName)
+                    .task(task)
+                    .taskDescription(task != null ? task.getDescription() : "N/A")
+                    .transactionId(transactionId)
+                    .message(message)
+                    .logOrigin(logOrigin)
+                    .level(level)
+                    .object(object)
+                    .processingTime(processingTime)
+                    .build();
+    
+            logMessage(serviceLog);
         }
     }
 
     private boolean shouldLog(LogLevel currentLevel, LogLevel messageLevel) {
-        return currentLevel == LogLevel.ALL ||
-                currentLevel == LogLevel.INFO ||
-                (currentLevel == LogLevel.WARNING && messageLevel != LogLevel.INFO) ||
-                (currentLevel == LogLevel.ERROR && messageLevel == LogLevel.ERROR);
+        return messageLevel.ordinal() >= currentLevel.ordinal();
     }
 
-    private void logMessage(String applicationName, Task task, String taskDescription, String transactionId, String message, String logOrigin, LogLevel level, Object object, Long processingTime) {
-        String logMsg = formatLogMessage(applicationName, task, taskDescription, transactionId, message, logOrigin, level, object, processingTime);
-        switch (level) {
+    public void logMessage(ServiceLog serviceLog) {
+        String logMsg = formatLogMessage(serviceLog);
+        switch (serviceLog.getLevel()) {
             case ERROR:
                 logger.error(logMsg);
                 break;
-            case WARNING:
+            case WARN: // Cambié de WARNING a WARN para coincidir con los niveles estándar de SLF4J
                 logger.warn(logMsg);
                 break;
             default:
@@ -83,10 +91,16 @@ public class ServiceLogger<T> {
         }
     }
 
-    private String formatLogMessage(String applicationName, Task task, String taskDescription, String transactionId, String message, String logOrigin, LogLevel level, Object object, Long processingTime) {
+    private String formatLogMessage(ServiceLog serviceLog) {
         return String.format("{ \"applicationName\": \"%s\", \"task\": \"%s - %s\", \"transactionId\": \"%s\", \"message\": \"%s\", \"logOrigin\": \"%s\", \"level\": \"%s\", \"object\": \"%s\", \"processingTime\": \"%s\" }",
-                applicationName, task, taskDescription, transactionId, message, logOrigin, level,
-                object != null ? object.toString() : null,
-                processingTime != null ? processingTime.toString() : null);
+                serviceLog.getApplicationName(),
+                serviceLog.getTask(),
+                serviceLog.getTaskDescription(),
+                serviceLog.getTransactionId(),
+                serviceLog.getMessage(),
+                serviceLog.getLogOrigin(),
+                serviceLog.getLevel(),
+                serviceLog.getObject() != null ? serviceLog.getObject().toString() : null,
+                serviceLog.getProcessingTime() != null ? serviceLog.getProcessingTime().toString() : null);
     }
 }

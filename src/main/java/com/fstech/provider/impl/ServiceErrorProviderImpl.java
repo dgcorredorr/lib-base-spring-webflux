@@ -2,9 +2,9 @@ package com.fstech.provider.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.fstech.common.utils.ServiceLogger;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.ServiceError;
 import com.fstech.provider.ServiceErrorProvider;
 import com.fstech.provider.mapper.ServiceErrorMapper;
@@ -24,13 +24,11 @@ import reactor.core.publisher.Mono;
 @Component
 public class ServiceErrorProviderImpl implements ServiceErrorProvider {
 
-    private final ServiceLogger<ServiceErrorProviderImpl> logger;
+    private final ServiceLogger<ServiceErrorProviderImpl> logger = new ServiceLogger<>(ServiceErrorProviderImpl.class);
     private final ServiceErrorRepository serviceErrorRepository;
     private final ServiceErrorMapper serviceErrorMapper;
 
-    public ServiceErrorProviderImpl(ServiceLogger<ServiceErrorProviderImpl> logger, ServiceErrorRepository serviceErrorRepository, ServiceErrorMapper serviceErrorMapper) {
-        logger.setLoggerClass(ServiceErrorProviderImpl.class);
-        this.logger = logger;
+    public ServiceErrorProviderImpl(ServiceErrorRepository serviceErrorRepository, ServiceErrorMapper serviceErrorMapper) {
         this.serviceErrorRepository = serviceErrorRepository;
         this.serviceErrorMapper = serviceErrorMapper;
     }

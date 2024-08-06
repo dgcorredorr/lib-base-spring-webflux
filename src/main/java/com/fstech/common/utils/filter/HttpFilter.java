@@ -10,15 +10,14 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 import com.fstech.application.service.TraceabilityService;
-import com.fstech.common.utils.ServiceLogger;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.Task;
 import com.fstech.common.utils.enums.TraceabilityStatus;
 import com.fstech.common.utils.enums.TraceabilityTask;
+import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.Traceability;
 
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SignalType;
 
 /**
  * Filtro de solicitudes y respuestas HTTP que realiza acciones antes del
@@ -40,12 +39,10 @@ import reactor.core.publisher.SignalType;
 @Component
 public class HttpFilter implements WebFilter {
 
-    private final ServiceLogger<HttpFilter> logger;
+    private final ServiceLogger<HttpFilter> logger = new ServiceLogger<>(HttpFilter.class);
     private final TraceabilityService traceabilityService;
 
-    public HttpFilter(ServiceLogger<HttpFilter> logger, TraceabilityService traceabilityService) {
-        logger.setLoggerClass(HttpFilter.class);
-        this.logger = logger;
+    public HttpFilter(TraceabilityService traceabilityService) {
         this.traceabilityService = traceabilityService;
     }
 
@@ -63,7 +60,7 @@ public class HttpFilter implements WebFilter {
                     .doFinally(signalType -> {
                         long endTime = System.currentTimeMillis();
                         ContextFilter.setCurrentExchange(exchange);
-                        processResponseBody(exchange, signalType, endTime - startTime, body);
+                        processResponseBody(exchange, endTime - startTime, body);
                     });
         });
     }
@@ -88,15 +85,26 @@ public class HttpFilter implements WebFilter {
                 null);
     }
 
-    private void processResponseBody(ServerWebExchange exchange, SignalType signalType, long duration,
+    private void processResponseBody(ServerWebExchange exchange, long duration,
             Object requestBody) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
         String transactionId = exchange.getLogPrefix();
         TraceabilityStatus traceabilityStatus = exchange.getAttribute("TRACEABILITY_STATUS");
         HttpStatusCode httpStatusCode = response.getStatusCode();
-        LogLevel logLevel = (httpStatusCode != null) ? httpStatusCode.is2xxSuccessful() ? LogLevel.INFO
-                : httpStatusCode.is4xxClientError() ? LogLevel.WARNING : LogLevel.ERROR : LogLevel.ERROR;
+        LogLevel logLevel;
+
+        if (httpStatusCode != null) {
+            if (httpStatusCode.is2xxSuccessful()) {
+                logLevel = LogLevel.INFO;
+            } else if (httpStatusCode.is4xxClientError()) {
+                logLevel = LogLevel.WARN;
+            } else {
+                logLevel = LogLevel.ERROR;
+            }
+        } else {
+            logLevel = LogLevel.ERROR;
+        }
 
         traceabilityService.createTraceability(Traceability.builder()
                 .transactionId(transactionId)

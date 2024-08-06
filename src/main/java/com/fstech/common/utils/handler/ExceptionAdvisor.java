@@ -13,13 +13,13 @@ import com.fstech.application.dto.GenericResponse;
 import com.fstech.application.service.MessageService;
 import com.fstech.application.service.ServiceErrorService;
 import com.fstech.application.service.TraceabilityService;
-import com.fstech.common.utils.ServiceLogger;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.MessageMapping;
 import com.fstech.common.utils.enums.Task;
 import com.fstech.common.utils.enums.TraceabilityStatus;
 import com.fstech.common.utils.enums.TraceabilityTask;
 import com.fstech.common.utils.exception.ServiceException;
+import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.ServiceError;
 import com.fstech.core.entity.Traceability;
 
@@ -46,15 +46,13 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class ExceptionAdvisor {
 
-    private final ServiceLogger<ExceptionAdvisor> logger;
+    private final ServiceLogger<ExceptionAdvisor> logger = new ServiceLogger<>(ExceptionAdvisor.class);
     private final TraceabilityService traceabilityService;
     private final ServiceErrorService serviceErrorService;
     private final MessageService messageService;
 
-    public ExceptionAdvisor(ServiceLogger<ExceptionAdvisor> logger, TraceabilityService traceabilityService,
+    public ExceptionAdvisor(TraceabilityService traceabilityService,
             ServiceErrorService serviceErrorService, MessageService messageService) {
-        logger.setLoggerClass(ExceptionAdvisor.class);
-        this.logger = logger;
         this.traceabilityService = traceabilityService;
         this.serviceErrorService = serviceErrorService;
         this.messageService = messageService;
@@ -65,7 +63,7 @@ public class ExceptionAdvisor {
             ServerWebExchange exchange) {
         HttpStatus status = HttpStatus.CONFLICT;
         TraceabilityStatus traceabilityStatus = TraceabilityStatus.FAILED;
-        LogLevel logLevel = LogLevel.WARNING;
+        LogLevel logLevel = LogLevel.WARN;
         return handleExceptionInternal(ex, exchange, status, traceabilityStatus, logLevel, ex.getTask(),
                 ex.getMessage());
     }
@@ -114,14 +112,14 @@ public class ExceptionAdvisor {
         errorDetails.put("exception", ex.getClass().getName());
         errorDetails.put("message", ex.getMessage());
 
-        return createTraceability(transactionId, exchange, traceabilityStatus, task)
+        return createTraceability(transactionId, exchange, traceabilityStatus)
                 .then(createServiceError(ex, exchange, transactionId, task))
                 .then(logException(exchange, ex, logLevel))
                 .then(createErrorResponse(exchange, status, transactionId, exceptionMessage, errorDetails));
     }
 
     private Mono<Void> createTraceability(String transactionId, ServerWebExchange exchange,
-            TraceabilityStatus traceabilityStatus, Task task) {
+            TraceabilityStatus traceabilityStatus) {
         return traceabilityService.createTraceability(Traceability.builder()
                 .transactionId(transactionId)
                 .task(TraceabilityTask.REQUEST_ERROR)
