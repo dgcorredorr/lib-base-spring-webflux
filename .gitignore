@@ -39,4 +39,4 @@ mvnw
 mvnw.cmd
 .mvn/
 
-**/maven.properties
+src/main/resources/maven.properties
