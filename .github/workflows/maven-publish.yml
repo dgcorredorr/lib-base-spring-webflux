@@ -48,9 +48,9 @@ jobs:
     - name: Publish to GitHub Packages Apache Maven
       run: |
         if [ "$REPO_TYPE" == "snapshots" ]; then
-          mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository=github-snapshots::default::https://maven.pkg.github.com/fstech-co/base-snapshots
+          mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository=github-snapshots::https://maven.pkg.github.com/fstech-co/base-snapshots
         else
-          mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository=github-releases::default::https://maven.pkg.github.com/fstech-co/base-releases
+          mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DaltDeploymentRepository=github-releases::https://maven.pkg.github.com/fstech-co/base-releases
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
