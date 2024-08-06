@@ -3,7 +3,6 @@ name: Maven Package
 on:
   release:
     types: [created]
-    workflow_dispatch:
 
 jobs:
   build:
@@ -26,6 +25,7 @@ jobs:
     - name: Remove main application class
       run: |
         rm -f src/main/java/com/fstech/MsBaseApplication.java
+        rm -f src/test/java/com/fstech/MsBaseApplicationTests.java
 
     - name: Modify POM for library publication
       run: |
@@ -35,6 +35,6 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml -DskipTests
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
