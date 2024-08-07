@@ -1,7 +1,6 @@
 package com.fstech.provider;
 
 import com.fstech.core.entity.Traceability;
-import reactor.core.publisher.Mono;
 
 /**
  * La interfaz TraceabilityProvider define métodos para registrar la trazabilidad de acciones en la aplicación.
