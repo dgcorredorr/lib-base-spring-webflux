@@ -11,6 +11,9 @@ import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.Task;
 import com.fstech.common.utils.filter.ContextFilter;
 
+import lombok.Builder;
+import lombok.Data;
+
 /**
  * Logger de servicio personalizado para registrar mensajes con información
  * contextual adicional.
@@ -102,5 +105,19 @@ public class ServiceLogger<T> {
                 serviceLog.getLevel(),
                 serviceLog.getObject() != null ? serviceLog.getObject().toString() : null,
                 serviceLog.getProcessingTime() != null ? serviceLog.getProcessingTime().toString() : null);
+    }
+
+    @Data
+    @Builder
+    private static class ServiceLog {
+        private String applicationName;
+        private Task task;
+        private String taskDescription;
+        private String transactionId;
+        private String message;
+        private String logOrigin;
+        private LogLevel level;
+        private Object object;
+        private Long processingTime;
     }
 }

@@ -14,12 +14,14 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
+@Validated
 @RequestMapping("api/v1/mock")
 public class MockController {
 
@@ -42,19 +44,20 @@ public class MockController {
                 .map(response -> new ResponseEntity<>(response, HttpStatus.OK));
     }
 
-    @PostMapping(consumes = "application/json")
+    @PostMapping
     public Mono<ResponseEntity<GenericResponseDto>> postMock(ServerWebExchange exchange,
-            @Valid @RequestBody GenericRequestDto requestDto) {
+            @Valid @RequestBody Mono<GenericRequestDto> requestDtoMono) {
 
-        return messageService.mapMessage(MessageMapping.DEFAULT_SUCCESS)
-                .map(message -> GenericResponseDto.builder()
-                        .origin(exchange.getRequest().getPath().toString())
-                        .requestId(exchange.getLogPrefix())
-                        .message(message)
-                        .success(true)
-                        .documents(requestDto)
-                        .build())
-                .map(response -> new ResponseEntity<>(response, HttpStatus.OK));
+        return requestDtoMono
+                .flatMap(requestDto -> messageService.mapMessage(MessageMapping.DEFAULT_SUCCESS)
+                        .map(message -> GenericResponseDto.builder()
+                                .origin(exchange.getRequest().getPath().toString())
+                                .requestId(exchange.getLogPrefix())
+                                .message(message)
+                                .success(true)
+                                .documents(requestDto.getDocuments())
+                                .build())
+                        .map(response -> new ResponseEntity<>(response, HttpStatus.OK)));
     }
 
 }

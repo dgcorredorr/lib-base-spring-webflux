@@ -6,8 +6,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.MissingRequestValueException;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.ServerWebInputException;
 
 import com.fstech.application.dto.GenericResponseDto;
 import com.fstech.application.service.MessageService;
@@ -23,6 +24,8 @@ import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.ServiceError;
 import com.fstech.core.entity.Traceability;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -46,124 +49,159 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class ExceptionAdvisor {
 
-    private final ServiceLogger<ExceptionAdvisor> logger = new ServiceLogger<>(ExceptionAdvisor.class);
-    private final TraceabilityService traceabilityService;
-    private final ServiceErrorService serviceErrorService;
-    private final MessageService messageService;
+        private final ServiceLogger<ExceptionAdvisor> logger = new ServiceLogger<>(ExceptionAdvisor.class);
+        private final TraceabilityService traceabilityService;
+        private final ServiceErrorService serviceErrorService;
+        private final MessageService messageService;
 
-    public ExceptionAdvisor(TraceabilityService traceabilityService,
-            ServiceErrorService serviceErrorService, MessageService messageService) {
-        this.traceabilityService = traceabilityService;
-        this.serviceErrorService = serviceErrorService;
-        this.messageService = messageService;
-    }
+        public ExceptionAdvisor(TraceabilityService traceabilityService,
+                        ServiceErrorService serviceErrorService, MessageService messageService) {
+                this.traceabilityService = traceabilityService;
+                this.serviceErrorService = serviceErrorService;
+                this.messageService = messageService;
+        }
 
-    @ExceptionHandler(ServiceException.class)
-    public Mono<ResponseEntity<GenericResponseDto>> handleServiceException(ServiceException ex,
-            ServerWebExchange exchange) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        TraceabilityStatus traceabilityStatus = TraceabilityStatus.FAILED;
-        LogLevel logLevel = LogLevel.WARN;
-        return handleExceptionInternal(ex, exchange, status, traceabilityStatus, logLevel, ex.getTask(),
-                ex.getMessage());
-    }
+        @ExceptionHandler(ServiceException.class)
+        public Mono<ResponseEntity<GenericResponseDto>> handleServiceException(ServiceException ex,
+                        ServerWebExchange exchange) {
+                ExceptionDetails details = new ExceptionDetails(ex, exchange, HttpStatus.CONFLICT,
+                                TraceabilityStatus.FAILED, LogLevel.WARN, ex.getTask(), ex.getMessage(), null);
+                return handleExceptionInternal(details);
+        }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Mono<ResponseEntity<GenericResponseDto>> handleValidationException(MethodArgumentNotValidException ex,
-            ServerWebExchange exchange) {
-        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
-                .map(FieldError::getDefaultMessage)
-                .collect(Collectors.joining(", "));
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        TraceabilityStatus traceabilityStatus = TraceabilityStatus.ERROR;
-        LogLevel logLevel = LogLevel.ERROR;
-        return handleExceptionInternal(new Exception(errorMessage), exchange, status, traceabilityStatus, logLevel,
-                Task.EXCEPTION_MANAGER, errorMessage);
-    }
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public Mono<ResponseEntity<GenericResponseDto>> handleValidationException(MethodArgumentNotValidException ex,
+                        ServerWebExchange exchange) {
+                String errorMessage = "Validation failed";
+                Map<String, String> validationErrors = ex.getBindingResult().getFieldErrors().stream()
+                                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+                ExceptionDetails details = new ExceptionDetails(ex, exchange,
+                                HttpStatus.BAD_REQUEST, TraceabilityStatus.ERROR, LogLevel.ERROR,
+                                Task.EXCEPTION_MANAGER,
+                                errorMessage, validationErrors);
+                return handleExceptionInternal(details);
+        }
 
-    @ExceptionHandler(ServerWebInputException.class)
-    public Mono<ResponseEntity<GenericResponseDto>> handleServerWebInputException(ServerWebInputException ex,
-            ServerWebExchange exchange) {
-        String errorMessage = "Missing or invalid parameter: " + ex.getReason();
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        TraceabilityStatus traceabilityStatus = TraceabilityStatus.ERROR;
-        LogLevel logLevel = LogLevel.ERROR;
-        return handleExceptionInternal(new Exception(errorMessage), exchange, status, traceabilityStatus, logLevel,
-                Task.EXCEPTION_MANAGER, errorMessage);
-    }
+        @ExceptionHandler(WebExchangeBindException.class)
+        public Mono<ResponseEntity<GenericResponseDto>> handleValidationException(WebExchangeBindException ex,
+                        ServerWebExchange exchange) {
+                String errorMessage = "Validation failed";
+                HttpStatus status = HttpStatus.BAD_REQUEST;
+                TraceabilityStatus traceabilityStatus = TraceabilityStatus.ERROR;
+                LogLevel logLevel = LogLevel.ERROR;
 
-    @ExceptionHandler(Exception.class)
-    public Mono<ResponseEntity<GenericResponseDto>> handleGenericException(Exception ex, ServerWebExchange exchange) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        TraceabilityStatus traceabilityStatus = TraceabilityStatus.ERROR;
-        LogLevel logLevel = LogLevel.ERROR;
-        return handleExceptionInternal(ex, exchange, status, traceabilityStatus, logLevel, Task.EXCEPTION_MANAGER,
-                null);
-    }
+                Map<String, String> validationErrors = ex.getBindingResult().getFieldErrors().stream()
+                                .collect(Collectors.groupingBy(
+                                                FieldError::getField,
+                                                Collectors.mapping(FieldError::getDefaultMessage,
+                                                                Collectors.joining(", "))));
 
-    private Mono<ResponseEntity<GenericResponseDto>> handleExceptionInternal(Exception ex, ServerWebExchange exchange,
-            HttpStatus status,
-            TraceabilityStatus traceabilityStatus, LogLevel logLevel, Task task, String exceptionMessage) {
+                ExceptionDetails details = new ExceptionDetails(ex, exchange,
+                                status, traceabilityStatus, logLevel, Task.EXCEPTION_MANAGER,
+                                errorMessage, validationErrors);
+                return handleExceptionInternal(details);
+        }
 
-        exchange.getAttributes().put("TRACEABILITY_STATUS", traceabilityStatus);
+        @ExceptionHandler(MissingRequestValueException.class)
+        public Mono<ResponseEntity<GenericResponseDto>> handleServerWebInputException(MissingRequestValueException ex,
+                        ServerWebExchange exchange) {
 
-        String transactionId = exchange.getLogPrefix();
-        Map<String, Object> errorDetails = new HashMap<>();
-        errorDetails.put("exception", ex.getClass().getName());
-        errorDetails.put("message", ex.getMessage());
+                Map<String, String> validationErrors = new HashMap<>();
+                validationErrors.put(ex.getName(), "Required " + ex.getLabel() + " is not present.");
 
-        traceabilityService.createTraceability(Traceability.builder()
-                .transactionId(transactionId)
-                .task(TraceabilityTask.REQUEST_ERROR)
-                .method(exchange.getRequest().getMethod())
-                .status(traceabilityStatus)
-                .origin(exchange.getRequest().getURI().getPath())
-                .request(exchange.getRequest().toString())
-                .response(exchange.getResponse().toString())
-                .build());
+                String errorMessage = "Missing or invalid request value.";
+                ExceptionDetails details = new ExceptionDetails(ex, exchange,
+                                HttpStatus.BAD_REQUEST, TraceabilityStatus.ERROR, LogLevel.ERROR,
+                                Task.EXCEPTION_MANAGER,
+                                errorMessage, validationErrors);
+                return handleExceptionInternal(details);
+        }
 
-        serviceErrorService.createServiceError(ServiceError.builder()
-                .transactionId(transactionId)
-                .success(false)
-                .origin(exchange.getRequest().getURI().getPath())
-                .method(exchange.getRequest().getMethod())
-                .task(task)
-                .errorClass(
-                        ex instanceof ServiceException ? ((ServiceException) ex).getTask().getOrigin().getOriginClass()
-                                : "")
-                .errorMethod(
-                        ex instanceof ServiceException ? ((ServiceException) ex).getTask().getOrigin().getOriginMethod()
-                                : "")
-                .message(ex.getMessage())
-                .stackTrace(Arrays.toString(ex.getStackTrace()))
-                .request(exchange.getRequest().toString())
-                .response(exchange.getResponse().toString())
-                .build());
+        @ExceptionHandler(Exception.class)
+        public Mono<ResponseEntity<GenericResponseDto>> handleGenericException(Exception ex,
+                        ServerWebExchange exchange) {
+                ExceptionDetails details = new ExceptionDetails(ex, exchange, HttpStatus.INTERNAL_SERVER_ERROR,
+                                TraceabilityStatus.ERROR, LogLevel.ERROR, Task.EXCEPTION_MANAGER, null, null);
+                return handleExceptionInternal(details);
+        }
+        
+        private Mono<ResponseEntity<GenericResponseDto>> handleExceptionInternal(ExceptionDetails details) {
+                details.getExchange().getAttributes().put("TRACEABILITY_STATUS", details.getTraceabilityStatus());
 
-        logger.log("Excepción - " + exchange.getRequest().getURI().getPath(),
-                Task.EXCEPTION_MANAGER, logLevel, ex, null);
+                String transactionId = details.getExchange().getLogPrefix();
+                Map<String, Object> errorDetails = new HashMap<>();
+                errorDetails.put("exception", details.getEx().getClass().getName());
+                errorDetails.put("message", details.getEx().getMessage());
 
-        return createErrorResponse(exchange, status, transactionId, exceptionMessage, errorDetails);
-    }
+                traceabilityService.createTraceability(Traceability.builder()
+                                .transactionId(transactionId)
+                                .task(TraceabilityTask.REQUEST_ERROR)
+                                .method(details.getExchange().getRequest().getMethod())
+                                .status(details.getTraceabilityStatus())
+                                .origin(details.getExchange().getRequest().getURI().getPath())
+                                .request(details.getExchange().getRequest().toString())
+                                .response(details.getExchange().getResponse().toString())
+                                .build());
 
-    private Mono<ResponseEntity<GenericResponseDto>> createErrorResponse(ServerWebExchange exchange, HttpStatus status,
-            String transactionId, String exceptionMessage, Map<String, Object> errorDetails) {
-        return messageService.mapMessage(MessageMapping.DEFAULT_ERROR)
-                .map(mappedMessage -> {
-                    GenericResponseDto responseBuilder = GenericResponseDto.builder()
-                            .message(mappedMessage)
-                            .origin(exchange.getRequest().getURI().getPath())
-                            .success(false)
-                            .timestamp(LocalDateTime.now())
-                            .errorDetails(errorDetails)
-                            .requestId(transactionId).build();
+                serviceErrorService.createServiceError(ServiceError.builder()
+                                .transactionId(transactionId)
+                                .success(false)
+                                .origin(details.getExchange().getRequest().getURI().getPath())
+                                .method(details.getExchange().getRequest().getMethod())
+                                .task(details.getTask())
+                                .errorClass(details.getEx() instanceof ServiceException
+                                                ? ((ServiceException) details.getEx()).getTask().getOrigin()
+                                                                .getOriginClass()
+                                                : "")
+                                .errorMethod(details.getEx() instanceof ServiceException
+                                                ? ((ServiceException) details.getEx()).getTask().getOrigin()
+                                                                .getOriginMethod()
+                                                : "")
+                                .message(details.getEx().getMessage())
+                                .stackTrace(Arrays.toString(details.getEx().getStackTrace()))
+                                .request(details.getExchange().getRequest().toString())
+                                .response(details.getExchange().getResponse().toString())
+                                .build());
 
-                    if (exceptionMessage != null) {
-                        responseBuilder.setMessage(exceptionMessage);
-                    }
+                logger.log("Excepción - " + details.getExchange().getRequest().getURI().getPath(),
+                                Task.EXCEPTION_MANAGER, details.getLogLevel(), details.getEx(), null);
 
-                    return responseBuilder;
-                })
-                .map(body -> new ResponseEntity<>(body, status));
-    }
+                return createErrorResponse(details, transactionId, errorDetails);
+        }
+
+        private Mono<ResponseEntity<GenericResponseDto>> createErrorResponse(ExceptionDetails details,
+                        String transactionId,
+                        Map<String, Object> errorDetails) {
+                return messageService.mapMessage(MessageMapping.DEFAULT_ERROR)
+                                .map(mappedMessage -> {
+                                        GenericResponseDto responseBuilder = GenericResponseDto.builder()
+                                                        .message(mappedMessage)
+                                                        .origin(details.getExchange().getRequest().getURI().getPath())
+                                                        .success(false)
+                                                        .timestamp(LocalDateTime.now())
+                                                        .errorDetails(errorDetails)
+                                                        .validationErrors(details.getValidationErrors())
+                                                        .requestId(transactionId).build();
+
+                                        if (details.getExceptionMessage() != null) {
+                                                responseBuilder.setMessage(details.getExceptionMessage());
+                                        }
+
+                                        return responseBuilder;
+                                })
+                                .map(body -> new ResponseEntity<>(body, details.getStatus()));
+        }
+
+        @Data
+        @AllArgsConstructor
+        private class ExceptionDetails {
+                private final Exception ex;
+                private final ServerWebExchange exchange;
+                private final HttpStatus status;
+                private final TraceabilityStatus traceabilityStatus;
+                private final LogLevel logLevel;
+                private final Task task;
+                private final String exceptionMessage;
+                private final Map<String, String> validationErrors;
+        }
 }

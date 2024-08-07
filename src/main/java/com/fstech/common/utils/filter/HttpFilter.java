@@ -63,11 +63,14 @@ public class HttpFilter implements WebFilter {
         AtomicReference<String> requestBodyRef = new AtomicReference<>("");
         AtomicReference<String> responseBodyRef = new AtomicReference<>("");
 
-        return DataBufferUtils.join(exchange.getRequest().getBody())
+        ServerHttpRequest request = exchange.getRequest();
+        return DataBufferUtils.join(request.getBody())
+                .defaultIfEmpty(exchange.getResponse().bufferFactory().wrap(new byte[0])) // Handle empty body
                 .flatMap(dataBuffer -> {
                     // Convertir el buffer a string
                     byte[] bytes = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(bytes);
+                    DataBufferUtils.release(dataBuffer); // Release data buffer
                     String bodyString = new String(bytes, StandardCharsets.UTF_8);
                     requestBodyRef.set(bodyString);
 
@@ -78,7 +81,7 @@ public class HttpFilter implements WebFilter {
                     DataBuffer newDataBuffer = exchange.getResponse().bufferFactory().wrap(bytes);
 
                     // Decorar el request con el nuevo DataBuffer
-                    ServerHttpRequest decoratedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
+                    ServerHttpRequest decoratedRequest = new ServerHttpRequestDecorator(request) {
                         @Override
                         @NonNull
                         public Flux<DataBuffer> getBody() {
@@ -95,6 +98,7 @@ public class HttpFilter implements WebFilter {
                                     .flatMap(buffer -> {
                                         byte[] responseBytes = new byte[buffer.readableByteCount()];
                                         buffer.read(responseBytes);
+                                        DataBufferUtils.release(buffer); // Release data buffer
                                         String responseBodyString = new String(responseBytes, StandardCharsets.UTF_8);
                                         responseBodyRef.set(responseBodyString);
 

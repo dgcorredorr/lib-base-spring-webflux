@@ -1,11 +1,13 @@
 package com.fstech.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,5 +32,6 @@ public class GenericRequestDto implements Serializable {
 
     @Schema(description = "Documentos asociados con la solicitud.")
     @NotNull
-    private Map<String, Object> documents;
+    @NotEmpty
+    private transient List<Map<String, Object>> documents;
 }

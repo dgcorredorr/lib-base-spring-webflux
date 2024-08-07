@@ -53,6 +53,9 @@ public class GenericResponseDto implements Serializable {
     @JsonIgnore
     private transient Map<String, Object> errorDetails;
 
+    @Schema(description = "Detalles específicos de los errores de validación, si los hay.")
+    private transient Map<String, String> validationErrors;
+
     @Schema(description = "ID de la solicitud asociado con esta respuesta.")
     private String requestId;
 }

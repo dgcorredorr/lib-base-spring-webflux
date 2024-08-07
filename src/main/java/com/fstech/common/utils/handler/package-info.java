@@ -1,6 +1,5 @@
 /**
- * Paquete para manejo de excepciones y filtros de solicitud en la integración de SAP RFC.
- * Incluye ExceptionAdvisor para la gestión uniforme de excepciones y filtros de solicitud
- * para el procesamiento de peticiones HTTP.
+ * Paquete para manejo de excepciones y filtros de solicitud.
+ * Incluye ExceptionAdvisor para la gestión uniforme de excepciones.
  */
 package com.fstech.common.utils.handler;
