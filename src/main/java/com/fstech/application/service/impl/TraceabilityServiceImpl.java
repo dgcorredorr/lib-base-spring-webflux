@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.fstech.application.service.TraceabilityService;
 import com.fstech.core.TraceabilityUseCase;
 import com.fstech.core.entity.Traceability;
-import reactor.core.publisher.Mono;
 
 /**
  * Implementación del servicio para operaciones relacionadas con la trazabilidad.
@@ -41,7 +40,7 @@ public class TraceabilityServiceImpl implements TraceabilityService {
      * @return Un Mono<Void> que indica la finalización de la operación.
      */
     @Override
-    public Mono<Void> createTraceability(Traceability traceability) {
-        return this.traceabilityUseCase.createTraceability(traceability);
+    public void createTraceability(Traceability traceability) {
+        this.traceabilityUseCase.createTraceability(traceability);
     }
 }

@@ -6,8 +6,6 @@ import com.fstech.core.ServiceErrorUseCase;
 import com.fstech.core.entity.ServiceError;
 import com.fstech.provider.ServiceErrorProvider;
 
-import reactor.core.publisher.Mono;
-
 /**
  * Implementación de la interfaz {@link ServiceErrorUseCase} que proporciona la lógica
  * para la gestión de errores de servicio en la aplicación.
@@ -31,7 +29,7 @@ public class ServiceErrorUseCaseImpl implements ServiceErrorUseCase {
     }
 
     @Override
-    public Mono<Void> createServiceError(ServiceError serviceError) {
-        return this.serviceErrorProvider.createServiceError(serviceError);
+    public void createServiceError(ServiceError serviceError) {
+        this.serviceErrorProvider.createServiceError(serviceError);
     }
 }

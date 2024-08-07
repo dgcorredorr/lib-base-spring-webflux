@@ -1,8 +1,16 @@
 package com.fstech.common.utils.filter;
 
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.reactivestreams.Publisher;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,12 +25,12 @@ import com.fstech.common.utils.enums.TraceabilityTask;
 import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.Traceability;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
  * Filtro de solicitudes y respuestas HTTP que realiza acciones antes del
- * procesamiento de la solicitud
- * y después del procesamiento de la respuesta.
+ * procesamiento de la solicitud y después del procesamiento de la respuesta.
  *
  * <p>
  * Este filtro se utiliza para:
@@ -51,18 +59,67 @@ public class HttpFilter implements WebFilter {
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
         long startTime = System.currentTimeMillis();
 
-        // Log y trazabilidad de la solicitud
-        return exchange.getRequest().getBody().collectList().flatMap(body -> {
-            processRequestBody(exchange, body);
+        // AtomicReference para mantener el cuerpo de la solicitud
+        AtomicReference<String> requestBodyRef = new AtomicReference<>("");
+        AtomicReference<String> responseBodyRef = new AtomicReference<>("");
 
-            // Continuar con el procesamiento de la solicitud y manejar la respuesta
-            return chain.filter(exchange)
-                    .doFinally(signalType -> {
+        return DataBufferUtils.join(exchange.getRequest().getBody())
+                .flatMap(dataBuffer -> {
+                    // Convertir el buffer a string
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bytes);
+                    String bodyString = new String(bytes, StandardCharsets.UTF_8);
+                    requestBodyRef.set(bodyString);
+
+                    // Loguear el cuerpo de la solicitud
+                    processRequestBody(exchange, bodyString);
+
+                    // Crear un nuevo DataBuffer a partir del byte array
+                    DataBuffer newDataBuffer = exchange.getResponse().bufferFactory().wrap(bytes);
+
+                    // Decorar el request con el nuevo DataBuffer
+                    ServerHttpRequest decoratedRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
+                        @Override
+                        @NonNull
+                        public Flux<DataBuffer> getBody() {
+                            return Flux.just(newDataBuffer);
+                        }
+                    };
+
+                    // Decorar el response para capturar el cuerpo de la respuesta
+                    ServerHttpResponse decoratedResponse = new ServerHttpResponseDecorator(exchange.getResponse()) {
+                        @Override
+                        @NonNull
+                        public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
+                            return DataBufferUtils.join(body)
+                                    .flatMap(buffer -> {
+                                        byte[] responseBytes = new byte[buffer.readableByteCount()];
+                                        buffer.read(responseBytes);
+                                        String responseBodyString = new String(responseBytes, StandardCharsets.UTF_8);
+                                        responseBodyRef.set(responseBodyString);
+
+                                        // Crear un nuevo DataBuffer a partir del byte array
+                                        DataBuffer newResponseDataBuffer = exchange.getResponse().bufferFactory()
+                                                .wrap(responseBytes);
+                                        return super.writeWith(Flux.just(newResponseDataBuffer));
+                                    });
+                        }
+                    };
+
+                    // Crear un nuevo ServerWebExchange con el ServerHttpRequest y
+                    // ServerHttpResponse decorados
+                    ServerWebExchange mutatedExchange = exchange.mutate().request(decoratedRequest)
+                            .response(decoratedResponse).build();
+
+                    // Continuar con el procesamiento de la solicitud
+                    return chain.filter(mutatedExchange).doFinally(signalType -> {
                         long endTime = System.currentTimeMillis();
-                        ContextFilter.setCurrentExchange(exchange);
-                        processResponseBody(exchange, endTime - startTime, body);
+                        String requestBody = requestBodyRef.get();
+                        String responseBody = responseBodyRef.get();
+                        ContextFilter.setCurrentExchange(mutatedExchange);
+                        processResponseBody(mutatedExchange, endTime - startTime, requestBody, responseBody);
                     });
-        });
+                });
     }
 
     private void processRequestBody(ServerWebExchange exchange, Object body) {
@@ -72,21 +129,21 @@ public class HttpFilter implements WebFilter {
         traceabilityService.createTraceability(Traceability.builder()
                 .transactionId(requestId)
                 .status(TraceabilityStatus.SUCCESS)
-                .origin(request.getPath().pathWithinApplication().value())
+                .origin(request.getPath().toString())
                 .method(request.getMethod())
                 .task(TraceabilityTask.START_REQUEST)
                 .request(body.toString())
-                .build()).then();
+                .build());
 
         logger.log("Entrada Principal - " + request.getPath().pathWithinApplication().value(),
                 Task.HTTP_REQUEST_FILTER,
                 LogLevel.INFO,
-                body,
+                body.toString(),
                 null);
     }
 
     private void processResponseBody(ServerWebExchange exchange, long duration,
-            Object requestBody) {
+            Object requestBody, Object responseBody) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
         String transactionId = exchange.getLogPrefix();
@@ -105,22 +162,21 @@ public class HttpFilter implements WebFilter {
         } else {
             logLevel = LogLevel.ERROR;
         }
-
         traceabilityService.createTraceability(Traceability.builder()
                 .transactionId(transactionId)
                 .status(traceabilityStatus != null ? traceabilityStatus : TraceabilityStatus.SUCCESS)
-                .origin(request.getPath().pathWithinApplication().value())
+                .origin(request.getPath().toString())
                 .method(request.getMethod())
                 .task(TraceabilityTask.END_REQUEST)
                 .request(requestBody.toString())
-                .response(response.toString())
+                .response(responseBody != null ? responseBody.toString() : "No response body")
                 .durationMillis(duration)
-                .build()).then();
+                .build());
 
         logger.log("Salida Principal - " + request.getPath().pathWithinApplication().value(),
                 Task.HTTP_RESPONSE_FILTER,
                 logLevel,
-                response,
+                responseBody != null ? responseBody.toString() : "No response body",
                 duration);
     }
 

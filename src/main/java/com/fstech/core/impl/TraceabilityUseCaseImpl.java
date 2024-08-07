@@ -6,8 +6,6 @@ import com.fstech.core.TraceabilityUseCase;
 import com.fstech.core.entity.Traceability;
 import com.fstech.provider.TraceabilityProvider;
 
-import reactor.core.publisher.Mono;
-
 /**
  * Implementación de la interfaz {@link TraceabilityUseCase} que proporciona la lógica
  * para la creación y registro de trazabilidad en la aplicación.
@@ -31,7 +29,7 @@ public class TraceabilityUseCaseImpl implements TraceabilityUseCase {
     }
 
     @Override
-    public Mono<Void> createTraceability(Traceability traceability) {
-        return this.traceabilityProvider.createTraceability(traceability);
+    public void createTraceability(Traceability traceability) {
+        this.traceabilityProvider.createTraceability(traceability);
     }
 }

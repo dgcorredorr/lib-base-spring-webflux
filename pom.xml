@@ -95,13 +95,6 @@
 			<version>1.51.0</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/co.elastic.apm/apm-agent-api -->
-		<dependency>
-			<groupId>co.elastic.apm</groupId>
-			<artifactId>apm-agent-api</artifactId>
-			<version>1.51.0</version>
-		</dependency>
-
 		<!-- Logback -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>

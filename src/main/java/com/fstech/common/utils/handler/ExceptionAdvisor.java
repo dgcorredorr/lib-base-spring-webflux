@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
 
-import com.fstech.application.dto.GenericResponse;
+import com.fstech.application.dto.GenericResponseDto;
 import com.fstech.application.service.MessageService;
 import com.fstech.application.service.ServiceErrorService;
 import com.fstech.application.service.TraceabilityService;
@@ -59,7 +59,7 @@ public class ExceptionAdvisor {
     }
 
     @ExceptionHandler(ServiceException.class)
-    public Mono<ResponseEntity<GenericResponse>> handleServiceException(ServiceException ex,
+    public Mono<ResponseEntity<GenericResponseDto>> handleServiceException(ServiceException ex,
             ServerWebExchange exchange) {
         HttpStatus status = HttpStatus.CONFLICT;
         TraceabilityStatus traceabilityStatus = TraceabilityStatus.FAILED;
@@ -69,7 +69,7 @@ public class ExceptionAdvisor {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Mono<ResponseEntity<GenericResponse>> handleValidationException(MethodArgumentNotValidException ex,
+    public Mono<ResponseEntity<GenericResponseDto>> handleValidationException(MethodArgumentNotValidException ex,
             ServerWebExchange exchange) {
         String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
@@ -82,7 +82,7 @@ public class ExceptionAdvisor {
     }
 
     @ExceptionHandler(ServerWebInputException.class)
-    public Mono<ResponseEntity<GenericResponse>> handleServerWebInputException(ServerWebInputException ex,
+    public Mono<ResponseEntity<GenericResponseDto>> handleServerWebInputException(ServerWebInputException ex,
             ServerWebExchange exchange) {
         String errorMessage = "Missing or invalid parameter: " + ex.getReason();
         HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -93,7 +93,7 @@ public class ExceptionAdvisor {
     }
 
     @ExceptionHandler(Exception.class)
-    public Mono<ResponseEntity<GenericResponse>> handleGenericException(Exception ex, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<GenericResponseDto>> handleGenericException(Exception ex, ServerWebExchange exchange) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         TraceabilityStatus traceabilityStatus = TraceabilityStatus.ERROR;
         LogLevel logLevel = LogLevel.ERROR;
@@ -101,7 +101,7 @@ public class ExceptionAdvisor {
                 null);
     }
 
-    private Mono<ResponseEntity<GenericResponse>> handleExceptionInternal(Exception ex, ServerWebExchange exchange,
+    private Mono<ResponseEntity<GenericResponseDto>> handleExceptionInternal(Exception ex, ServerWebExchange exchange,
             HttpStatus status,
             TraceabilityStatus traceabilityStatus, LogLevel logLevel, Task task, String exceptionMessage) {
 
@@ -112,15 +112,7 @@ public class ExceptionAdvisor {
         errorDetails.put("exception", ex.getClass().getName());
         errorDetails.put("message", ex.getMessage());
 
-        return createTraceability(transactionId, exchange, traceabilityStatus)
-                .then(createServiceError(ex, exchange, transactionId, task))
-                .then(logException(exchange, ex, logLevel))
-                .then(createErrorResponse(exchange, status, transactionId, exceptionMessage, errorDetails));
-    }
-
-    private Mono<Void> createTraceability(String transactionId, ServerWebExchange exchange,
-            TraceabilityStatus traceabilityStatus) {
-        return traceabilityService.createTraceability(Traceability.builder()
+        traceabilityService.createTraceability(Traceability.builder()
                 .transactionId(transactionId)
                 .task(TraceabilityTask.REQUEST_ERROR)
                 .method(exchange.getRequest().getMethod())
@@ -128,13 +120,9 @@ public class ExceptionAdvisor {
                 .origin(exchange.getRequest().getURI().getPath())
                 .request(exchange.getRequest().toString())
                 .response(exchange.getResponse().toString())
-                .build())
-                .then();
-    }
+                .build());
 
-    private Mono<Void> createServiceError(Exception ex, ServerWebExchange exchange, String transactionId, Task task) {
-        StackTraceElement[] stackTrace = ex.getStackTrace();
-        return serviceErrorService.createServiceError(ServiceError.builder()
+        serviceErrorService.createServiceError(ServiceError.builder()
                 .transactionId(transactionId)
                 .success(false)
                 .origin(exchange.getRequest().getURI().getPath())
@@ -147,23 +135,22 @@ public class ExceptionAdvisor {
                         ex instanceof ServiceException ? ((ServiceException) ex).getTask().getOrigin().getOriginMethod()
                                 : "")
                 .message(ex.getMessage())
-                .stackTrace(Arrays.toString(stackTrace))
+                .stackTrace(Arrays.toString(ex.getStackTrace()))
                 .request(exchange.getRequest().toString())
                 .response(exchange.getResponse().toString())
-                .build())
-                .then();
+                .build());
+
+        logger.log("Excepción - " + exchange.getRequest().getURI().getPath(),
+                Task.EXCEPTION_MANAGER, logLevel, ex, null);
+
+        return createErrorResponse(exchange, status, transactionId, exceptionMessage, errorDetails);
     }
 
-    private Mono<Void> logException(ServerWebExchange exchange, Exception ex, LogLevel logLevel) {
-        return Mono.fromRunnable(() -> logger.log("Excepción - " + exchange.getRequest().getURI().getPath(),
-                Task.EXCEPTION_MANAGER, logLevel, ex, null));
-    }
-
-    private Mono<ResponseEntity<GenericResponse>> createErrorResponse(ServerWebExchange exchange, HttpStatus status,
+    private Mono<ResponseEntity<GenericResponseDto>> createErrorResponse(ServerWebExchange exchange, HttpStatus status,
             String transactionId, String exceptionMessage, Map<String, Object> errorDetails) {
         return messageService.mapMessage(MessageMapping.DEFAULT_ERROR)
                 .map(mappedMessage -> {
-                    GenericResponse responseBuilder = GenericResponse.builder()
+                    GenericResponseDto responseBuilder = GenericResponseDto.builder()
                             .message(mappedMessage)
                             .origin(exchange.getRequest().getURI().getPath())
                             .success(false)

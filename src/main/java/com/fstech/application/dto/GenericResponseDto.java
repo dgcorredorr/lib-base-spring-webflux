@@ -29,7 +29,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @Builder
 @Schema(description = "Estructura de respuesta genérica para las solicitudes de la API.")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GenericResponse implements Serializable {
+public class GenericResponseDto implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -7868182870673334153L;

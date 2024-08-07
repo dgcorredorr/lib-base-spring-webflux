@@ -2,15 +2,10 @@ package com.fstech.provider.impl;
 
 import org.springframework.stereotype.Component;
 
-import com.fstech.common.utils.enums.LogLevel;
-import com.fstech.common.utils.enums.Task;
-import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.Traceability;
 import com.fstech.provider.TraceabilityProvider;
 import com.fstech.provider.mapper.TraceabilityMapper;
 import com.fstech.provider.repository.TraceabilityRepository;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Implementación de la interfaz {@link TraceabilityProvider} que proporciona operaciones para registrar trazabilidad.
@@ -23,7 +18,6 @@ import reactor.core.publisher.Mono;
  */
 @Component
 public class TraceabilityProviderImpl implements TraceabilityProvider {
-    private final ServiceLogger<TraceabilityProviderImpl> logger = new ServiceLogger<>(TraceabilityProviderImpl.class);
     private final TraceabilityRepository traceabilityRepository;
     private final TraceabilityMapper traceabilityMapper;
 
@@ -33,22 +27,7 @@ public class TraceabilityProviderImpl implements TraceabilityProvider {
     }
 
     @Override
-    public Mono<Void> createTraceability(Traceability traceability) {
-        long startTime = System.currentTimeMillis();
-
-        return traceabilityRepository.save(traceabilityMapper.toModel(traceability))
-                .doOnSuccess(savedTraceability -> {
-                    long endTime = System.currentTimeMillis();
-                    long executionTime = endTime - startTime;
-
-                    Task task = Task.CREATE_TRACEABILITY;
-                    task.setOrigin(Task.Origin.builder()
-                            .originClass("TraceabilityProviderImpl")
-                            .originMethod("createTraceability(Traceability traceability)")
-                            .build());
-
-                    logger.log("Trazabilidad creada", task, LogLevel.INFO, traceability, executionTime);
-                })
-                .then();
+    public void createTraceability(Traceability traceability) {
+        traceabilityRepository.save(traceabilityMapper.toModel(traceability)).subscribe();
     }
 }

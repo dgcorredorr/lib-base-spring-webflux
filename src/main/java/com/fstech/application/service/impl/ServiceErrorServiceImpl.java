@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.fstech.application.service.ServiceErrorService;
 import com.fstech.core.ServiceErrorUseCase;
 import com.fstech.core.entity.ServiceError;
-import reactor.core.publisher.Mono;
 
 /**
  * Implementación del servicio para operaciones relacionadas con errores de servicio.
@@ -40,10 +39,9 @@ public class ServiceErrorServiceImpl implements ServiceErrorService {
      * la depuración y el análisis de problemas.</p>
      *
      * @param serviceError El objeto {@link ServiceError} que contiene la información del error a registrar.
-     * @return Un Mono<Void> que indica la finalización de la operación.
      */
     @Override
-    public Mono<Void> createServiceError(ServiceError serviceError) {
-        return this.serviceErrorUseCase.createServiceError(serviceError);
+    public void createServiceError(ServiceError serviceError) {
+        this.serviceErrorUseCase.createServiceError(serviceError);
     }
 }

@@ -1,64 +1,9 @@
 {
   "properties": [
     {
-      "name": "general.app.version",
-      "type": "java.lang.String",
-      "description": "The version of the application."
-    },
-    {
-      "name": "general.app.name",
-      "type": "java.lang.String",
-      "description": "The name of the application."
-    },
-    {
-      "name": "general.app.description",
-      "type": "java.lang.String",
-      "description": "A brief description of the application."
-    },
-    {
-      "name": "elastic.apm.enabled",
-      "type": "java.lang.String",
-      "description": "Indicates whether Elastic APM is enabled."
-    },
-    {
       "name": "general.app.loglevel",
       "type": "java.lang.String",
       "description": "The log level for the application."
-    },
-    {
-      "name": "elastic.apm.server-url",
-      "type": "java.lang.String",
-      "description": "The server URL for Elastic APM."
-    },
-    {
-      "name": "elastic.apm.service-name",
-      "type": "java.lang.String",
-      "description": "The service name for Elastic APM."
-    },
-    {
-      "name": "elastic.apm.capture-body",
-      "type": "java.lang.String",
-      "description": "Indicates whether the body of requests should be captured by Elastic APM."
-    },
-    {
-      "name": "elastic.apm.capture-headers",
-      "type": "java.lang.String",
-      "description": "Indicates whether headers of requests should be captured by Elastic APM."
-    },
-    {
-      "name": "elastic.apm.application-packages",
-      "type": "java.lang.String",
-      "description": "The application packages monitored by Elastic APM."
-    },
-    {
-      "name": "elastic.apm.log-level",
-      "type": "java.lang.String",
-      "description": "The log level for Elastic APM."
-    },
-    {
-      "name": "elastic.apm.environment",
-      "type": "java.lang.String",
-      "description": "The environment for Elastic APM (e.g., production, development)."
     }
   ]
 }

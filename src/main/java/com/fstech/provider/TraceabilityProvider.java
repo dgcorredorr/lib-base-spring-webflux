@@ -13,7 +13,6 @@ public interface TraceabilityProvider {
      * Crea un registro de trazabilidad para una acción en el sistema de manera reactiva.
      *
      * @param traceability El objeto Traceability que contiene información sobre la trazabilidad.
-     * @return Un Mono<Void> que indica la finalización de la operación.
      */
-    Mono<Void> createTraceability(Traceability traceability);
+    void createTraceability(Traceability traceability);
 }

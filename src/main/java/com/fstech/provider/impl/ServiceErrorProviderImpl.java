@@ -1,16 +1,10 @@
 package com.fstech.provider.impl;
 
 import org.springframework.stereotype.Component;
-
-import com.fstech.common.utils.enums.LogLevel;
-import com.fstech.common.utils.enums.Task;
-import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.ServiceError;
 import com.fstech.provider.ServiceErrorProvider;
 import com.fstech.provider.mapper.ServiceErrorMapper;
 import com.fstech.provider.repository.ServiceErrorRepository;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Implementación de la interfaz {@link ServiceErrorProvider} que proporciona operaciones para registrar errores de servicio.
@@ -24,7 +18,6 @@ import reactor.core.publisher.Mono;
 @Component
 public class ServiceErrorProviderImpl implements ServiceErrorProvider {
 
-    private final ServiceLogger<ServiceErrorProviderImpl> logger = new ServiceLogger<>(ServiceErrorProviderImpl.class);
     private final ServiceErrorRepository serviceErrorRepository;
     private final ServiceErrorMapper serviceErrorMapper;
 
@@ -34,22 +27,7 @@ public class ServiceErrorProviderImpl implements ServiceErrorProvider {
     }
 
     @Override
-    public Mono<Void> createServiceError(ServiceError serviceError) {
-        long startTime = System.currentTimeMillis();
-
-        return serviceErrorRepository.save(serviceErrorMapper.toModel(serviceError))
-                .doOnSuccess(savedServiceError -> {
-                    long endTime = System.currentTimeMillis();
-                    long executionTime = endTime - startTime;
-
-                    Task task = Task.CREATE_SERVICE_ERROR;
-                    task.setOrigin(Task.Origin.builder()
-                            .originClass("ServiceErrorProviderImpl")
-                            .originMethod("createServiceError(ServiceError serviceError)")
-                            .build());
-
-                    logger.log("Error de servicio creado", task, LogLevel.INFO, serviceError, executionTime);
-                })
-                .then();
+    public void createServiceError(ServiceError serviceError) {
+        serviceErrorRepository.save(serviceErrorMapper.toModel(serviceError)).subscribe();
     }
 }
