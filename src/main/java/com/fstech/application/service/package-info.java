@@ -1,5 +1,6 @@
 /**
- * Este paquete contiene interfaces e implementaciones que definen servicios relacionados con la lógica de negocio y la interacción con otros sistemas.
- * Estas interfaces definen las operaciones que pueden realizar los componentes de la aplicación en estas áreas.
+ * Este paquete contiene los servicios de la aplicación.
+ * Los servicios encapsulan la lógica de validación,
+ * sirviendo como intermediarios entre los controladores y la capa core de la aplicación.
  */
 package com.fstech.application.service;
