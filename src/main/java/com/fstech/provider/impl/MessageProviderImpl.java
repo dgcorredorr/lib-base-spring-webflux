@@ -2,8 +2,8 @@ package com.fstech.provider.impl;
 
 import org.springframework.stereotype.Component;
 
+import com.fstech.common.exception.ServiceException;
 import com.fstech.common.utils.enums.Task;
-import com.fstech.common.utils.exception.ServiceException;
 import com.fstech.core.entity.Message;
 import com.fstech.provider.MessageProvider;
 import com.fstech.provider.mapper.MessageMapper;

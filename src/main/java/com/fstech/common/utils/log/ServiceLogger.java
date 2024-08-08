@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
+import com.fstech.application.filter.ContextFilter;
 import com.fstech.common.configuration.GeneralConfig;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.Task;
-import com.fstech.common.utils.filter.ContextFilter;
 
 import lombok.Builder;
 import lombok.Data;
