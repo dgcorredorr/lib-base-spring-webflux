@@ -1,5 +1,5 @@
 /**
- * Provee las enumeraciones comunes utilizadas en toda la aplicación SAP RFC Wrapper de Claro.
+ * Provee las enumeraciones comunes utilizadas en toda la aplicación.
  *
  * <p>Este paquete contiene enums que definen un conjunto de constantes y valores fijos
  * utilizados en diferentes partes de la aplicación. Estos enums facilitan la gestión de

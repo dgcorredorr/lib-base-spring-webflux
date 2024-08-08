@@ -1,4 +1,4 @@
-package com.fstech.common.utils.filter;
+package com.fstech.application.filter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;

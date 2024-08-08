@@ -1,4 +1,4 @@
-package com.fstech.common.utils.exception;
+package com.fstech.common.exception;
 
 import com.fstech.common.utils.enums.Task;
 

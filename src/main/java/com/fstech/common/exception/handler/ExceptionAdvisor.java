@@ -1,4 +1,4 @@
-package com.fstech.common.utils.handler;
+package com.fstech.common.exception.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +14,12 @@ import com.fstech.application.dto.GenericResponseDto;
 import com.fstech.application.service.MessageService;
 import com.fstech.application.service.ServiceErrorService;
 import com.fstech.application.service.TraceabilityService;
+import com.fstech.common.exception.ServiceException;
 import com.fstech.common.utils.enums.LogLevel;
 import com.fstech.common.utils.enums.MessageMapping;
 import com.fstech.common.utils.enums.Task;
 import com.fstech.common.utils.enums.TraceabilityStatus;
 import com.fstech.common.utils.enums.TraceabilityTask;
-import com.fstech.common.utils.exception.ServiceException;
 import com.fstech.common.utils.log.ServiceLogger;
 import com.fstech.core.entity.ServiceError;
 import com.fstech.core.entity.Traceability;
