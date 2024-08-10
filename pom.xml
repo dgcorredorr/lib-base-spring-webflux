@@ -199,7 +199,7 @@
 			<url>https://maven.pkg.github.com/fstech-co/base-releases</url>
 		</repository>
 		<snapshotRepository>
-			<id>github-snapshots</id>
+			<id>github</id>
             <name>GitHub Snapshots</name>
 			<url>https://maven.pkg.github.com/fstech-co/base-snapshots</url>
 		</snapshotRepository>
