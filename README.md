@@ -2,10 +2,10 @@
   <a href="https://spring.io/projects/spring-boot" target="blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Spring_Framework_Logo_2018.svg/2560px-Spring_Framework_Logo_2018.svg.png" width="320" alt="Spring Boot Logo" /></a>
 </p>
 
-# **Microservicio Base**
+# **Librería Base**
 
 ## **Descripción**
-Microservicio desarrollado en Java con el framework Spring Boot 3 y base de datos MongoDB. Microservicio base de la fábrica de software FullSpectrum Tech.
+Librería desarrollada en Java con el framework Spring Boot 3 y base de datos MongoDB. Librería base de la fábrica de software FullSpectrum Tech.
 
 ## **Pre-requisitos**
 Para clonar y ejecutar esta aplicación, necesitará [Git](https://git-scm.com), [Java 17.0.11](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html), [Maven](https://maven.apache.org/download.cgi) y [Docker](https://docs.docker.com/engine/install/) instalados en su computadora. 
@@ -14,10 +14,10 @@ Desde su línea de comando:
 
 ```bash
 # Clonar repositorio
-$ git clone https://github.com/fstech-co/ms-base
+$ git clone https://github.com/fstech-co/lib-base-spring
 
 # Entrar al repositorio local
-$ cd ms-base
+$ cd lib-base-spring
 
 # Instalar dependencias
 $ mvn install
@@ -49,7 +49,7 @@ Desde su línea de comando:
 ```bash
 # Comando para ejecutar pruebas unitarias con cobertura y generar informe herramienta SonarQube
 $ mvn clean verify sonar:sonar -Dsonar.login=<SONARQUBE_LOGIN> -Dsonar.password=<SONARQUBE_PASSWORD>
--Dsonar.projectKey=ms-base -Dsonar.projectName='ms-base' -Dsonar.host.url=<SONARQUBE_URL>
+-Dsonar.projectKey=lib-base-spring -Dsonar.projectName='lib-base-spring' -Dsonar.host.url=<SONARQUBE_URL>
 ```
 Una vez finalizado el proceso, podrá acceder desde el [navegador](http://localhost:9000/projects?sort=name) para validar que se visualice correctamente el informe de SonarQube.
 

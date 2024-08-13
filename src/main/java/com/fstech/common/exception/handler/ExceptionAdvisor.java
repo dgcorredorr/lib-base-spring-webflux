@@ -3,7 +3,6 @@ package com.fstech.common.exception.handler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -69,26 +68,13 @@ public class ExceptionAdvisor {
                 return handleExceptionInternal(details);
         }
 
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public Mono<ResponseEntity<GenericResponseDto>> handleValidationException(MethodArgumentNotValidException ex,
-                        ServerWebExchange exchange) {
-                String errorMessage = "Validation failed";
-                Map<String, String> validationErrors = ex.getBindingResult().getFieldErrors().stream()
-                                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-                ExceptionDetails details = new ExceptionDetails(ex, exchange,
-                                HttpStatus.BAD_REQUEST, TraceabilityStatus.ERROR, LogLevel.ERROR,
-                                Task.EXCEPTION_MANAGER,
-                                errorMessage, validationErrors);
-                return handleExceptionInternal(details);
-        }
-
         @ExceptionHandler(WebExchangeBindException.class)
         public Mono<ResponseEntity<GenericResponseDto>> handleValidationException(WebExchangeBindException ex,
                         ServerWebExchange exchange) {
                 String errorMessage = "Validation failed";
                 HttpStatus status = HttpStatus.BAD_REQUEST;
-                TraceabilityStatus traceabilityStatus = TraceabilityStatus.ERROR;
-                LogLevel logLevel = LogLevel.ERROR;
+                TraceabilityStatus traceabilityStatus = TraceabilityStatus.FAILED;
+                LogLevel logLevel = LogLevel.WARN;
 
                 Map<String, String> validationErrors = ex.getBindingResult().getFieldErrors().stream()
                                 .collect(Collectors.groupingBy(
@@ -111,7 +97,7 @@ public class ExceptionAdvisor {
 
                 String errorMessage = "Missing or invalid request value.";
                 ExceptionDetails details = new ExceptionDetails(ex, exchange,
-                                HttpStatus.BAD_REQUEST, TraceabilityStatus.ERROR, LogLevel.ERROR,
+                                HttpStatus.BAD_REQUEST, TraceabilityStatus.FAILED, LogLevel.WARN,
                                 Task.EXCEPTION_MANAGER,
                                 errorMessage, validationErrors);
                 return handleExceptionInternal(details);
