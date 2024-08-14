@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.http.HttpMethod;
 
-import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.tasks.Task;
 
 import java.time.LocalDateTime;
 

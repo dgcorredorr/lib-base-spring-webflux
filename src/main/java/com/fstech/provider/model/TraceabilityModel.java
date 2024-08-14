@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.http.HttpMethod;
 
 import com.fstech.common.utils.enums.TraceabilityStatus;
-import com.fstech.common.utils.enums.TraceabilityTask;
+import com.fstech.common.utils.tasks.TraceabilityTask;
 
 import java.time.LocalDateTime;
 
