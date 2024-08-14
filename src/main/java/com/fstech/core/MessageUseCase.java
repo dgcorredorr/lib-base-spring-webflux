@@ -1,7 +1,8 @@
 package com.fstech.core;
 
+import java.util.List;
+
 import com.fstech.core.entity.Message;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -20,7 +21,7 @@ public interface MessageUseCase {
     /**
      * Obtiene la lista completa de mensajes disponibles de manera reactiva.
      *
-     * @return Un Flux que contiene la lista de mensajes.
+     * @return Un List que contiene la lista de mensajes.
      */
-    Flux<Message> getMessageList();
+    List<Message> getMessageList();
 }

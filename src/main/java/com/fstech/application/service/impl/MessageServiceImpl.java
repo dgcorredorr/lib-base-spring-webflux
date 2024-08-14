@@ -56,12 +56,13 @@ public class MessageServiceImpl implements MessageService {
      * @return El mensaje correspondiente al código proporcionado.
      */
     @Override
-    public Mono<String> mapMessage(MessageMapping messageMapping) {
+    public String mapMessage(MessageMapping messageMapping) {
         return this.messageUseCase
                 .getMessageList()
+                .stream()
                 .filter(message -> message.getMessageId().equals(messageMapping.toString()))
-                .next()
+                .findFirst()
                 .map(Message::getMessageContent)
-                .switchIfEmpty(Mono.just(messageMapping.toString()));
+                .orElse(messageMapping.toString());
     }
 }

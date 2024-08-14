@@ -9,7 +9,7 @@ import org.springframework.web.server.ServerWebExchange;
 import com.fstech.application.filter.ContextFilter;
 import com.fstech.common.configuration.GeneralConfig;
 import com.fstech.common.utils.enums.LogLevel;
-import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.tasks.Task;
 
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +23,8 @@ import lombok.Data;
  * aplicación,
  * incluyendo detalles como el nombre de la aplicación, el ID de la transacción,
  * y la tarea
- * específica que se está registrando. Está diseñada para ser utilizada a lo largo
+ * específica que se está registrando. Está diseñada para ser utilizada a lo
+ * largo
  * el sistema
  * para asegurar un formato de log coherente y detallado.
  * </p>
@@ -53,7 +54,7 @@ public class ServiceLogger<T> {
     public void log(String message, Task task, LogLevel level, Object object, Long processingTime) {
         LogLevel currentLevel = LogLevel.valueOf(GeneralConfig.getLogLevel().toUpperCase());
         LogLevel messageLevel = LogLevel.valueOf(level.toString().toUpperCase());
-    
+
         if (shouldLog(currentLevel, messageLevel)) {
             ServerWebExchange exchange = ContextFilter.getCurrentExchange();
             String applicationName = GeneralConfig.getAppId();
@@ -70,7 +71,7 @@ public class ServiceLogger<T> {
                     .object(object)
                     .processingTime(processingTime)
                     .build();
-    
+
             logMessage(serviceLog);
         }
     }
@@ -95,7 +96,8 @@ public class ServiceLogger<T> {
     }
 
     private String formatLogMessage(ServiceLog serviceLog) {
-        return String.format("{ \"applicationName\": \"%s\", \"task\": \"%s - %s\", \"transactionId\": \"%s\", \"message\": \"%s\", \"logOrigin\": \"%s\", \"level\": \"%s\", \"object\": \"%s\", \"processingTime\": \"%s\" }",
+        return String.format(
+                "{ \"applicationName\": \"%s\", \"task\": \"%s - %s\", \"transactionId\": \"%s\", \"message\": \"%s\", \"logOrigin\": \"%s\", \"level\": \"%s\", \"object\": \"%s\", \"processingTime\": \"%s\" }",
                 serviceLog.getApplicationName(),
                 serviceLog.getTask(),
                 serviceLog.getTaskDescription(),

@@ -6,7 +6,6 @@ import com.fstech.core.MessageUseCase;
 import com.fstech.core.entity.Message;
 import com.fstech.provider.MessageProvider;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ public class MessageUseCaseImpl implements MessageUseCase {
     }
 
     @Override
-    public Flux<Message> getMessageList() {
-        return Flux.fromIterable(this.messageList);
+    public List<Message> getMessageList() {
+        return this.messageList;
     }
 }

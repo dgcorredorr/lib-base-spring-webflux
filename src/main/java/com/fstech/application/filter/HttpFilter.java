@@ -19,10 +19,10 @@ import org.springframework.web.server.WebFilterChain;
 
 import com.fstech.application.service.TraceabilityService;
 import com.fstech.common.utils.enums.LogLevel;
-import com.fstech.common.utils.enums.Task;
 import com.fstech.common.utils.enums.TraceabilityStatus;
-import com.fstech.common.utils.enums.TraceabilityTask;
 import com.fstech.common.utils.log.ServiceLogger;
+import com.fstech.common.utils.tasks.TaskService;
+import com.fstech.common.utils.tasks.TraceabilityTaskService;
 import com.fstech.core.entity.Traceability;
 
 import reactor.core.publisher.Flux;
@@ -49,9 +49,13 @@ public class HttpFilter implements WebFilter {
 
     private final ServiceLogger<HttpFilter> logger = new ServiceLogger<>(HttpFilter.class);
     private final TraceabilityService traceabilityService;
+    private final TaskService taskService;
+    private final TraceabilityTaskService traceabilityTaskService;
 
-    public HttpFilter(TraceabilityService traceabilityService) {
+    public HttpFilter(TraceabilityService traceabilityService, TaskService taskService, TraceabilityTaskService traceabilityTaskService) {
         this.traceabilityService = traceabilityService;
+        this.taskService = taskService;
+        this.traceabilityTaskService = traceabilityTaskService;
     }
 
     @Override
@@ -135,12 +139,12 @@ public class HttpFilter implements WebFilter {
                 .status(TraceabilityStatus.SUCCESS)
                 .origin(request.getPath().toString())
                 .method(request.getMethod())
-                .task(TraceabilityTask.START_REQUEST)
+                .task(traceabilityTaskService.getTaskById("START_REQUEST").get())
                 .request(body.toString())
                 .build());
 
         logger.log("Entrada Principal - " + request.getPath().pathWithinApplication().value(),
-                Task.HTTP_REQUEST_FILTER,
+                taskService.getTaskById("HTTP_REQUEST_FILTER").get(),
                 LogLevel.INFO,
                 body.toString(),
                 null);
@@ -171,14 +175,14 @@ public class HttpFilter implements WebFilter {
                 .status(traceabilityStatus != null ? traceabilityStatus : TraceabilityStatus.SUCCESS)
                 .origin(request.getPath().toString())
                 .method(request.getMethod())
-                .task(TraceabilityTask.END_REQUEST)
+                .task(traceabilityTaskService.getTaskById("END_REQUEST").get())
                 .request(requestBody.toString())
                 .response(responseBody != null ? responseBody.toString() : "No response body")
                 .durationMillis(duration)
                 .build());
 
         logger.log("Salida Principal - " + request.getPath().pathWithinApplication().value(),
-                Task.HTTP_RESPONSE_FILTER,
+                taskService.getTaskById("HTTP_RESPONSE_FILTER").get(),
                 logLevel,
                 responseBody != null ? responseBody.toString() : "No response body",
                 duration);

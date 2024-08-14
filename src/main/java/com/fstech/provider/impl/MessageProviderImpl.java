@@ -3,7 +3,8 @@ package com.fstech.provider.impl;
 import org.springframework.stereotype.Component;
 
 import com.fstech.common.exception.ServiceException;
-import com.fstech.common.utils.enums.Task;
+import com.fstech.common.utils.tasks.Task;
+import com.fstech.common.utils.tasks.TaskService;
 import com.fstech.core.entity.Message;
 import com.fstech.provider.MessageProvider;
 import com.fstech.provider.mapper.MessageMapper;
@@ -13,10 +14,14 @@ import reactor.core.publisher.Mono;
 import java.util.NoSuchElementException;
 
 /**
- * Implementación de la interfaz {@link MessageProvider} que proporciona operaciones para acceder a mensajes en el sistema.
+ * Implementación de la interfaz {@link MessageProvider} que proporciona
+ * operaciones para acceder a mensajes en el sistema.
  *
- * <p>Esta clase se encarga de interactuar con el repositorio de mensajes y utiliza un mapeador para convertir
- * entre entidades del repositorio y objetos de dominio de mensajes.</p>
+ * <p>
+ * Esta clase se encarga de interactuar con el repositorio de mensajes y utiliza
+ * un mapeador para convertir
+ * entre entidades del repositorio y objetos de dominio de mensajes.
+ * </p>
  *
  * @see MessageProvider
  */
@@ -25,28 +30,31 @@ public class MessageProviderImpl implements MessageProvider {
 
     private final MessageRepository messageRepository;
     private final MessageMapper messageMapper;
+    private final TaskService taskService;
 
-    public MessageProviderImpl(MessageRepository messageRepository, MessageMapper messageMapper) {
+    public MessageProviderImpl(MessageRepository messageRepository, MessageMapper messageMapper,
+            TaskService taskService) {
         this.messageRepository = messageRepository;
         this.messageMapper = messageMapper;
+        this.taskService = taskService;
     }
 
     @Override
     public Flux<Message> getMessages() {
         return this.messageRepository.findAll()
-                                   .flatMap(messageMapper::toEntity);
+                .flatMap(messageMapper::toEntity);
     }
 
     @Override
     public Mono<Message> getMessage(String id) {
-        Task task = Task.GET_MESSAGE;
-                                       task.setOrigin(Task.Origin.builder()
-                                               .originClass("MessageUseCaseImpl")
-                                               .originMethod("getMessage(String id)")
-                                               .build());
+        Task task = taskService.getTaskById("GET_MESSAGE").get();
+        task.setOrigin(Task.Origin.builder()
+                .originClass("MessageUseCaseImpl")
+                .originMethod("getMessage(String id)")
+                .build());
         return this.messageRepository.findByMessageId(id)
-                                     .switchIfEmpty(Mono.error(new ServiceException("Mensaje no encontrado", null, task, NoSuchElementException.class, null)
-                                     ))
-                                     .flatMap(messageMapper::toEntity);
+                .switchIfEmpty(Mono.error(
+                        new ServiceException("Mensaje no encontrado", null, task, NoSuchElementException.class, null)))
+                .flatMap(messageMapper::toEntity);
     }
 }

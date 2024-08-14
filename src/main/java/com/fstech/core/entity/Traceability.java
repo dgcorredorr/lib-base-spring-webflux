@@ -7,7 +7,7 @@ import lombok.ToString;
 import org.springframework.http.HttpMethod;
 
 import com.fstech.common.utils.enums.TraceabilityStatus;
-import com.fstech.common.utils.enums.TraceabilityTask;
+import com.fstech.common.utils.tasks.TraceabilityTask;
 
 /**
  * Clase que representa un registro de trazabilidad en la aplicación.
