@@ -5,9 +5,6 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
-		<app.name>Microservicio Base</app.name>
-		<app.description>Microservicio base de la fábrica de software FullSpectrum Tech</app.description>
-		<app.version>1.0.0-SNAPSHOT</app.version>
 		<java.version>17</java.version>
 	</properties>
 
@@ -18,10 +15,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.fstech</groupId>
-	<artifactId>ms-base</artifactId>
+	<artifactId>lib-base-spring</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>Microservicio Base</name>
-	<description>Microservicio base de la fábrica de software FullSpectrum Tech</description>
+	<name>Biblioteca Base</name>
+	<description>Biblioteca base de la fábrica de software FullSpectrum Tech</description>
 	<url />
 	<licenses>
 		<license />
@@ -42,12 +39,6 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-docker-compose</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
@@ -55,11 +46,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -68,20 +59,16 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<scope>runtime</scope>
-			<optional>true</optional>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
@@ -107,6 +94,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.5.6</version>
 		</dependency>
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
@@ -119,7 +107,6 @@
 			<artifactId>logstash-logback-encoder</artifactId>
 			<version>8.0</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -141,8 +128,13 @@
 						</exclude>
 					</excludes>
 				</configuration>
+				<executions>
+					<execution>
+						<id>repackage</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
 			</plugin>
-
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -162,25 +154,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.2.1</version>
-				<executions>
-					<execution>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>write-project-properties</goal>
-						</goals>
-						<configuration>
-							<outputFile>${basedir}/src/main/resources/maven.properties</outputFile>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
-
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -193,10 +167,16 @@
 	</build>
 
 	<distributionManagement>
-        <repository>
-            <id>github</id>
+		<repository>
+			<id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/fstech-co/ms-base</url>
-        </repository>
-    </distributionManagement>
+			<url>https://maven.pkg.github.com/fstech-co/base-releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>github</id>
+            <name>GitHub Snapshots</name>
+			<url>https://maven.pkg.github.com/fstech-co/base-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>

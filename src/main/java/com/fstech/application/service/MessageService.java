@@ -23,5 +23,5 @@ public interface MessageService {
      * @param messageMapping El tipo de mapeo de mensaje a aplicar.
      * @return El mensaje mapeado.
      */
-    Mono<String> mapMessage(MessageMapping messageMapping);
+    String mapMessage(MessageMapping messageMapping);
 }
