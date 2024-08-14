@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.MissingRequestValueException;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebInputException;
 
 import com.fstech.application.dto.GenericResponseDto;
 import com.fstech.application.service.MessageService;
@@ -108,6 +109,21 @@ public class ExceptionAdvisor {
                                 HttpStatus.BAD_REQUEST, TraceabilityStatus.FAILED, LogLevel.WARN,
                                 taskService.getTaskById(EXCEPTION_MANAGER).get(),
                                 errorMessage, validationErrors);
+                return handleExceptionInternal(details);
+        }
+
+        @ExceptionHandler(ServerWebInputException.class)
+        public Mono<ResponseEntity<GenericResponseDto>> handleServerWebInputException(ServerWebInputException ex,
+                        ServerWebExchange exchange) {
+                String errorMessage = "Invalid input provided.";
+                Map<String, String> validationErrors = new HashMap<>();
+                validationErrors.put("message", "Type mismatch: " + ex.getMethodParameter());
+
+                ExceptionDetails details = new ExceptionDetails(ex, exchange,
+                                HttpStatus.BAD_REQUEST, TraceabilityStatus.FAILED, LogLevel.WARN,
+                                taskService.getTaskById(EXCEPTION_MANAGER).get(),
+                                errorMessage, validationErrors);
+
                 return handleExceptionInternal(details);
         }
 
