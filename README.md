@@ -8,7 +8,7 @@
 Librería desarrollada en Java con el framework Spring Boot 3 y base de datos MongoDB. Librería base de la fábrica de software FullSpectrum Tech.
 
 ## **Pre-requisitos**
-Para clonar y ejecutar esta aplicación, necesitará [Git](https://git-scm.com), [Java 17.0.11](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html), [Maven](https://maven.apache.org/download.cgi) y [Docker](https://docs.docker.com/engine/install/) instalados en su computadora. 
+Para clonar y ejecutar esta aplicación, necesitará [Git](https://git-scm.com), [Java 17.0.11](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) y [Maven](https://maven.apache.org/download.cgi) instalados en su computadora. 
 
 Desde su línea de comando:
 
@@ -22,19 +22,6 @@ $ cd lib-base-spring
 # Instalar dependencias
 $ mvn install
 ```
-
-**NOTA: Antes de correr el proyecto, asegúrese de ejecutar con Docker el archivo compose.yaml.**
-
-```bash
-$ docker compose -f "compose.yaml" up -d --build
-```
-
-```bash
-# Correr aplicación en modo desarrollo
-$ mvn spring-boot:run
-```
-
-Luego podrá acceder desde el [navegador](http://localhost:8080/swagger-ui.html) para validar que se visualice correctamente la documentación de Swagger del proyecto.
 
 ## **Ejecutar pruebas unitarias y SonarQube**
 
