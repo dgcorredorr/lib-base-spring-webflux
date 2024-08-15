@@ -26,6 +26,7 @@ public class ContextFilter implements WebFilter {
     @Override
     @NonNull
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull WebFilterChain chain) {
+        ContextFilter.setCurrentExchange(exchange);
         return chain.filter(exchange)
                 .contextWrite(ctx -> ctx.put(ServerWebExchange.class, exchange))
                 .doFinally(signalType -> exchangeHolder.remove());
