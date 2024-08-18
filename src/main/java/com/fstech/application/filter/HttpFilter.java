@@ -52,7 +52,8 @@ public class HttpFilter implements WebFilter {
     private final TaskService taskService;
     private final TraceabilityTaskService traceabilityTaskService;
 
-    public HttpFilter(TraceabilityService traceabilityService, TaskService taskService, TraceabilityTaskService traceabilityTaskService) {
+    public HttpFilter(TraceabilityService traceabilityService, TaskService taskService,
+            TraceabilityTaskService traceabilityTaskService) {
         this.traceabilityService = traceabilityService;
         this.taskService = taskService;
         this.traceabilityTaskService = traceabilityTaskService;
@@ -77,9 +78,6 @@ public class HttpFilter implements WebFilter {
                     DataBufferUtils.release(dataBuffer); // Release data buffer
                     String bodyString = new String(bytes, StandardCharsets.UTF_8);
                     requestBodyRef.set(bodyString);
-
-                    // Loguear el cuerpo de la solicitud
-                    processRequestBody(exchange, bodyString);
 
                     // Crear un nuevo DataBuffer a partir del byte array
                     DataBuffer newDataBuffer = exchange.getResponse().bufferFactory().wrap(bytes);
@@ -120,7 +118,9 @@ public class HttpFilter implements WebFilter {
                             .response(decoratedResponse).build();
 
                     // Continuar con el procesamiento de la solicitud
-                    return chain.filter(mutatedExchange).doFinally(signalType -> {
+                    return chain.filter(mutatedExchange)
+                    .doOnSubscribe(subscription -> processRequestBody(exchange, bodyString))
+                    .doFinally(signalType -> {
                         long endTime = System.currentTimeMillis();
                         String requestBody = requestBodyRef.get();
                         String responseBody = responseBodyRef.get();

@@ -30,22 +30,22 @@ public interface ReactiveMapper<E, M> {
     Mono<M> toModel(E entity);
 
     /**
-     * Convierte una lista de modelos (DTO) en una lista de entidades.
+     * Convierte un flujo de modelos (DTO) en un flujo de entidades.
      *
-     * @param modelList La lista de modelos que se va a convertir en entidades.
-     * @return La lista de entidades resultante.
+     * @param modelFlux Flujo de modelos que se va a convertir en entidades.
+     * @return Flujo de entidades resultante.
      */
-    default Flux<E> toEntityList(Flux<M> modelList) {
-        return modelList.flatMap(this::toEntity);
+    default Flux<E> toEntityFlux(Flux<M> modelFlux) {
+        return modelFlux.flatMap(this::toEntity);
     }
 
     /**
-     * Convierte una lista de entidades en una lista de modelos (DTO).
+     * Convierte una flujo de entidades en un flujo de modelos (DTO).
      *
-     * @param entityList La lista de entidades que se va a convertir en modelos.
-     * @return La lista de modelos resultante.
+     * @param entityFlux Flujo de entidades que se va a convertir en modelos.
+     * @return Flujo de modelos resultante.
      */
-    default Flux<M> toModelList(Flux<E> entityList) {
-        return entityList.flatMap(this::toModel);
+    default Flux<M> toModelFlux(Flux<E> entityFlux) {
+        return entityFlux.flatMap(this::toModel);
     }
 }

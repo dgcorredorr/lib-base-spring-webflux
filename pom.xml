@@ -77,8 +77,8 @@
 
 		<dependency>
 			<groupId>org.mongodb</groupId>
-			<artifactId>mongodb-driver-sync</artifactId>
-			<version>5.1.2</version>
+			<artifactId>mongodb-driver-async</artifactId>
+			<version>3.12.14</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/co.elastic.apm/apm-agent-attach -->
@@ -87,6 +87,13 @@
 			<artifactId>apm-agent-attach</artifactId>
 			<version>1.51.0</version>
 		</dependency>
+
+        <!-- https://mvnrepository.com/artifact/co.elastic.apm/apm-agent-api -->
+        <dependency>
+            <groupId>co.elastic.apm</groupId>
+            <artifactId>apm-agent-api</artifactId>
+            <version>1.51.0</version>
+        </dependency>
 
 		<!-- Logback -->
 		<dependency>

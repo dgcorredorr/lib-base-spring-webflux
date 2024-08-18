@@ -36,6 +36,7 @@ public class MongoConfig extends AbstractReactiveMongoConfiguration {
     private String databaseName;
 
     @Bean
+    @Override
     @NonNull
     public MongoClient reactiveMongoClient() {
         String user = System.getenv("BD_USER");

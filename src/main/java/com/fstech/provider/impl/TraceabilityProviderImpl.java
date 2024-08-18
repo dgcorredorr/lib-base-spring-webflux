@@ -7,6 +7,9 @@ import com.fstech.provider.TraceabilityProvider;
 import com.fstech.provider.mapper.TraceabilityMapper;
 import com.fstech.provider.repository.TraceabilityRepository;
 
+import co.elastic.apm.api.ElasticApm;
+import co.elastic.apm.api.Span;
+
 /**
  * Implementación de la interfaz {@link TraceabilityProvider} que proporciona operaciones para registrar trazabilidad.
  *
@@ -28,6 +31,11 @@ public class TraceabilityProviderImpl implements TraceabilityProvider {
 
     @Override
     public void createTraceability(Traceability traceability) {
-        traceabilityRepository.save(traceabilityMapper.toModel(traceability)).subscribe();
+        Span span = ElasticApm.currentSpan().startSpan("db", "mongodb", "save");
+        span.setName("MongoDB Save Traceability " + traceability.getTask());
+        traceabilityRepository.save(traceabilityMapper.toModel(traceability))
+                .doOnError(Exception.class, span::captureException)
+                .doFinally(signalType -> span.end())
+                .subscribe();
     }
 }

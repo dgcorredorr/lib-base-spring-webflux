@@ -30,17 +30,14 @@ public class ElasticApmConfig {
     private static final String LOG_LEVEL_KEY = "log_level";
     private String logLevel;
 
-    private static final String ENABLE_EXPERIMENTAL_INSTRUMENTATIONS_KEY = "enable_experimental_instrumentations";
-
     @PostConstruct
     public void init() {
-        Map<String, String> apmProps = new HashMap<>(6);
+        Map<String, String> apmProps = new HashMap<>(5);
         apmProps.put(SERVER_URL_KEY, serverUrl);
         apmProps.put(SERVICE_NAME_KEY, serviceName);
         apmProps.put(ENVIRONMENT_KEY, environment);
         apmProps.put(APPLICATION_PACKAGES_KEY, applicationPackages);
         apmProps.put(LOG_LEVEL_KEY, logLevel);
-        apmProps.put(ENABLE_EXPERIMENTAL_INSTRUMENTATIONS_KEY, "true");
         ElasticApmAttacher.attach(apmProps);
     }
 }
