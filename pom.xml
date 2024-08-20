@@ -177,12 +177,12 @@
 		<repository>
 			<id>github</id>
             <name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/fstech-co/base-releases</url>
+			<url>https://maven.pkg.github.com/fspectrum/base-releases</url>
 		</repository>
 		<snapshotRepository>
 			<id>github</id>
             <name>GitHub Snapshots</name>
-			<url>https://maven.pkg.github.com/fstech-co/base-snapshots</url>
+			<url>https://maven.pkg.github.com/fspectrum/base-snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
 

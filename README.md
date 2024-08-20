@@ -14,7 +14,7 @@ Desde su línea de comando:
 
 ```bash
 # Clonar repositorio
-$ git clone https://github.com/fstech-co/lib-base-spring-webflux
+$ git clone https://github.com/fspectrum/lib-base-spring-webflux
 
 # Entrar al repositorio local
 $ cd lib-base-spring-webflux
