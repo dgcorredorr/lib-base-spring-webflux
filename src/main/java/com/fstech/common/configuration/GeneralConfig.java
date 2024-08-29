@@ -33,7 +33,7 @@ public class GeneralConfig {
     @Getter
     private static String appVersion;
 
-    @Value("${general.app.loglevel}")
+    @Value("${app.loglevel}")
     private String logLevelValue;
 
     @Value("${spring.application.name}")

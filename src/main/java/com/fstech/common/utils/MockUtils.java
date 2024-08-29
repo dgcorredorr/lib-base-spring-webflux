@@ -17,7 +17,7 @@ public class MockUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MockUtils.class);
 
-    @Value("${mock.json.path}")
+    @Value("${mock.json.path:null}")
     private String jsonFilePath;
 
     private static Map<String, Object> mockData;
@@ -37,16 +37,21 @@ public class MockUtils {
      */
     private static void loadMockData(String jsonFilePath) {
         ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            mockData = objectMapper.readValue(
-                MockUtils.class.getResourceAsStream(jsonFilePath),
-                new TypeReference<Map<String, Object>>() {}
-            );
-            logger.info("Archivo JSON cargado correctamente desde {}", jsonFilePath);
-        } catch (IOException e) {
-            logger.error("Error al cargar el archivo JSON desde {}: {}", jsonFilePath, e.getMessage());
+        if (!jsonFilePath.equals("null")) {
+            try {
+                mockData = objectMapper.readValue(
+                    MockUtils.class.getResourceAsStream(jsonFilePath),
+                    new TypeReference<Map<String, Object>>() {}
+                );
+                logger.info("Archivo JSON cargado correctamente desde {}", jsonFilePath);
+            } catch (IOException e) {
+                logger.error("Error al cargar el archivo JSON desde {}: {}", jsonFilePath, e.getMessage());
+                mockData = Collections.emptyMap();
+            }
+        } else {
             mockData = Collections.emptyMap();
         }
+        
     }
 
     /**
