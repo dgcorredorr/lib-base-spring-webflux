@@ -2,7 +2,6 @@ package com.meli.application.service.impl;
 
 import org.springframework.stereotype.Service;
 import com.meli.application.service.MessageService;
-import com.meli.common.utils.enums.MessageMapping;
 import com.meli.core.MessageUseCase;
 import com.meli.core.entity.Message;
 import reactor.core.publisher.Mono;
@@ -42,7 +41,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     /**
-     * Mapea un {@link MessageMapping} a su mensaje correspondiente.
+     * Mapea un messageId a su mensaje correspondiente.
      *
      * <p>
      * Este método busca un mensaje correspondiente al código de mensaje
@@ -56,7 +55,7 @@ public class MessageServiceImpl implements MessageService {
      * @return El mensaje correspondiente al código proporcionado.
      */
     @Override
-    public String mapMessage(MessageMapping messageMapping) {
+    public String mapMessage(String messageMapping) {
         return this.messageUseCase
                 .getMessageList()
                 .stream()

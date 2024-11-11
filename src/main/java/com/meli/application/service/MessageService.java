@@ -1,6 +1,5 @@
 package com.meli.application.service;
 
-import com.meli.common.utils.enums.MessageMapping;
 import com.meli.core.entity.Message;
 import reactor.core.publisher.Mono;
 
@@ -23,5 +22,5 @@ public interface MessageService {
      * @param messageMapping El tipo de mapeo de mensaje a aplicar.
      * @return El mensaje mapeado.
      */
-    String mapMessage(MessageMapping messageMapping);
+    String mapMessage(String messageMapping);
 }

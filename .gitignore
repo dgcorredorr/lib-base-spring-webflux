@@ -35,8 +35,4 @@ build/
 hs_err**.log
 replay**.log
 
-mvnw
-mvnw.cmd
-.mvn/
-
 *maven.properties

@@ -185,7 +185,7 @@ public class ExceptionAdvisor {
                         String transactionId,
                         Map<String, Object> errorDetails) {
 
-                String mappedMessage = messageService.mapMessage(MessageMapping.DEFAULT_ERROR);
+                String mappedMessage = messageService.mapMessage(MessageMapping.DEFAULT_ERROR.toString());
 
                 GenericResponseDto responseBuilder = GenericResponseDto.builder()
                                 .message(mappedMessage)
