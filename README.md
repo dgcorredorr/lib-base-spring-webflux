@@ -20,7 +20,18 @@ $ git clone https://github.com/dgcorredorr/lib-base-spring-webflux
 $ cd lib-base-spring-webflux
 
 # Instalar dependencias
-$ mvn install
+$ ./mvnw clean install
+```
+
+## **Uso**
+Para utilizar esta librería en otro proyecto, añada la siguiente dependencia en el archivo pom.xml de su proyecto:
+
+```xml
+<dependency>
+    <groupId>com.meli</groupId>
+    <artifactId>lib-base-spring-webflux</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
 ```
 
 ## **Módulos del proyecto**
