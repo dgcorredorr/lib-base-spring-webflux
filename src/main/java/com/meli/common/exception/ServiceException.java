@@ -1,5 +1,7 @@
 package com.meli.common.exception;
 
+import org.springframework.http.HttpStatus;
+
 import com.meli.common.utils.tasks.Task;
 
 import lombok.Getter;
@@ -30,6 +32,7 @@ import lombok.Getter;
 public class ServiceException extends RuntimeException {
 
     private final Class<?> exceptionClass;
+    private final HttpStatus httpStatus;
     private final transient Task task;
     private final transient Object documents;
 
@@ -39,13 +42,15 @@ public class ServiceException extends RuntimeException {
      * una tarea específica y la clase de excepción.
      *
      * @param message        El mensaje detallado de la excepción.
+     * @param code           El código de estado HTTP asociado con la excepción.
      * @param cause          La causa de la excepción.
      * @param task           La tarea específica durante la cual ocurrió la
      *                       excepción.
      * @param exceptionClass La clase de excepción que originó el error.
      */
-    public ServiceException(String message, Throwable cause, Task task, Class<?> exceptionClass, Object documents) {
+    public ServiceException(String message, HttpStatus code, Throwable cause, Task task, Class<?> exceptionClass, Object documents) {
         super(message, cause);
+        this.httpStatus = code;
         this.exceptionClass = exceptionClass;
         this.task = task;
         this.documents = documents;

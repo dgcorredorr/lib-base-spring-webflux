@@ -1,5 +1,6 @@
 package com.meli.provider.impl;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.meli.common.exception.ServiceException;
@@ -68,7 +69,7 @@ public class MessageProviderImpl implements MessageProvider {
                                 .build());
                 return this.messageRepository.findByMessageId(id)
                                 .switchIfEmpty(Mono.error(
-                                                new ServiceException("Mensaje no encontrado", null, task,
+                                                new ServiceException("Mensaje no encontrado", HttpStatus.NOT_FOUND, null, task,
                                                                 NoSuchElementException.class, null)))
                                 .flatMap(messageMapper::toEntity)
                                 .doOnError(Exception.class, span::captureException)

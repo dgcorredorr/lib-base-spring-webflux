@@ -33,5 +33,5 @@ public class GenericRequestDto implements Serializable {
     @Schema(description = "Documentos asociados con la solicitud.")
     @NotNull
     @NotEmpty
-    private transient List<Map<String, Object>> documents;
+    private List<Map<String, Object>> documents;
 }

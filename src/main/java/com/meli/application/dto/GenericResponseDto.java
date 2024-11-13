@@ -34,28 +34,28 @@ public class GenericResponseDto implements Serializable {
     @Serial
     private static final long serialVersionUID = -7868182870673334153L;
 
-    @Schema(description = "Indica si la solicitud fue exitosa o no.")
+    @Schema(description = "Indica si la solicitud fue exitosa o no.", example = "true")
     private boolean success;
 
-    @Schema(description = "Origen de la respuesta, puede ser utilizado para identificar el componente o parte de la aplicación que generó la respuesta.")
+    @Schema(description = "Origen de la respuesta, puede ser utilizado para identificar el componente o parte de la aplicación que generó la respuesta.", example = "/api/V1/mock")
     private String origin;
 
-    @Schema(description = "Mensaje descriptivo asociado con la respuesta. Puede contener información adicional sobre el resultado de la solicitud.")
+    @Schema(description = "Mensaje descriptivo asociado con la respuesta. Puede contener información adicional sobre el resultado de la solicitud.", example = "La solicitud se completó exitosamente.")
     private String message;
 
-    @Schema(description = "Documentos asociados con la respuesta.")
-    private transient Object documents;
+    @Schema(description = "Documentos asociados con la respuesta.", example = "{ \"key\": \"value\" }")
+    private Object documents;
 
-    @Schema(description = "Fecha y hora en que se creó la respuesta.")
+    @Schema(description = "Fecha y hora en que se creó la respuesta.", example = "2021-08-01T12:00:00")
     private LocalDateTime timestamp;
 
-    @Schema(description = "Detalles adicionales sobre el error, si los hay.")
+    @Schema(description = "Detalles adicionales sobre el error, si los hay.", example = "{ \"key\": \"value\" }")
     @JsonIgnore
-    private transient Map<String, Object> errorDetails;
+    private Map<String, Object> errorDetails;
 
-    @Schema(description = "Detalles específicos de los errores de validación, si los hay.")
-    private transient Map<String, String> validationErrors;
+    @Schema(description = "Detalles específicos de los errores de validación, si los hay.", example = "{ \"key\": \"value\" }")
+    private Map<String, String> validationErrors;
 
-    @Schema(description = "ID de la solicitud asociado con esta respuesta.")
+    @Schema(description = "ID de la solicitud asociado con esta respuesta.", example = "123456")
     private String requestId;
 }

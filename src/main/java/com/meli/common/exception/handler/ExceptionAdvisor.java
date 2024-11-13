@@ -72,7 +72,7 @@ public class ExceptionAdvisor {
         @ExceptionHandler(ServiceException.class)
         public Mono<ResponseEntity<GenericResponseDto>> handleServiceException(ServiceException ex,
                         ServerWebExchange exchange) {
-                ExceptionDetails details = new ExceptionDetails(ex, exchange, HttpStatus.CONFLICT,
+                ExceptionDetails details = new ExceptionDetails(ex, exchange, ex.getHttpStatus(),
                                 TraceabilityStatus.FAILED, LogLevel.WARN, ex.getTask(), ex.getMessage(), null);
                 return handleExceptionInternal(details);
         }
