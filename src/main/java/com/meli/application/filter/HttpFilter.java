@@ -143,7 +143,7 @@ public class HttpFilter implements WebFilter {
                 .request(body.toString())
                 .build());
 
-        logger.log("Entrada Principal - " + request.getPath().pathWithinApplication().value(),
+        logger.log("Entrada Principal - " + request.getMethod() + " -> " + request.getPath().pathWithinApplication().value(),
                 taskService.getTaskById("HTTP_REQUEST_FILTER").get(),
                 LogLevel.INFO,
                 body.toString(),
@@ -181,7 +181,7 @@ public class HttpFilter implements WebFilter {
                 .durationMillis(duration)
                 .build());
 
-        logger.log("Salida Principal - " + request.getPath().pathWithinApplication().value(),
+        logger.log("Salida Principal - " + request.getMethod() + " -> " + request.getPath().pathWithinApplication().value(),
                 taskService.getTaskById("HTTP_RESPONSE_FILTER").get(),
                 logLevel,
                 responseBody != null ? responseBody.toString() : "No response body",

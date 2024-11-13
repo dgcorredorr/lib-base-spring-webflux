@@ -68,6 +68,7 @@ public class ParamServiceImpl implements ParamService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> mapParamList(String string, Class<T> class1) {
         return this.paramUseCase
             .getParamList()
